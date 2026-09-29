@@ -1,0 +1,300 @@
+{"id":"sup-0001","message":"PO-1000: We confirm 5 units will ship on 2027-01-01.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0002","message":"PO-1001: We confirm 6 units will ship on 2027-01-02.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0003","message":"PO-1002: We confirm 7 units will ship on 2027-01-03.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0004","message":"PO-1003: We confirm 8 units will ship on 2027-01-04.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0005","message":"PO-1004: We confirm 9 units will ship on 2027-01-05.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0006","message":"PO-1005: We confirm 10 units will ship on 2027-01-06.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0007","message":"PO-1006: We confirm 11 units will ship on 2027-01-07.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0008","message":"PO-1007: We confirm 12 units will ship on 2027-01-08.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0009","message":"PO-1008: We confirm 13 units will ship on 2027-01-09.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0010","message":"PO-1009: We confirm 14 units will ship on 2027-01-10.","templateFamily":"commit-confirm-direct","split":"development"}
+{"id":"sup-0011","message":"Forwarded: Re: order PO-1100. Supplier confirms 8 cartons by 2027-02-01.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0012","message":"Forwarded: Re: order PO-1101. Supplier confirms 9 cartons by 2027-02-02.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0013","message":"Forwarded: Re: order PO-1102. Supplier confirms 10 cartons by 2027-02-03.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0014","message":"Forwarded: Re: order PO-1103. Supplier confirms 11 cartons by 2027-02-04.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0015","message":"Forwarded: Re: order PO-1104. Supplier confirms 12 cartons by 2027-02-05.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0016","message":"Forwarded: Re: order PO-1105. Supplier confirms 13 cartons by 2027-02-06.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0017","message":"Forwarded: Re: order PO-1106. Supplier confirms 14 cartons by 2027-02-07.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0018","message":"Forwarded: Re: order PO-1107. Supplier confirms 15 cartons by 2027-02-08.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0019","message":"Forwarded: Re: order PO-1108. Supplier confirms 16 cartons by 2027-02-09.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0020","message":"Forwarded: Re: order PO-1109. Supplier confirms 17 cartons by 2027-02-10.","templateFamily":"commit-confirm-forwarded","split":"development"}
+{"id":"sup-0021","message":"For PO-1200, revised delivery date is 2027-03-01.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0022","message":"For PO-1201, revised delivery date is 2027-03-02.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0023","message":"For PO-1202, revised delivery date is 2027-03-03.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0024","message":"For PO-1203, revised delivery date is 2027-03-04.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0025","message":"For PO-1204, revised delivery date is 2027-03-05.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0026","message":"For PO-1205, revised delivery date is 2027-03-06.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0027","message":"For PO-1206, revised delivery date is 2027-03-07.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0028","message":"For PO-1207, revised delivery date is 2027-03-08.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0029","message":"For PO-1208, revised delivery date is 2027-03-09.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0030","message":"For PO-1209, revised delivery date is 2027-03-10.","templateFamily":"eta-iso-direct","split":"development"}
+{"id":"sup-0031","message":"Fwd: PO-1300 — latest ETA: 2027-04-01 (earlier thread said 2027-04-06).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0032","message":"Fwd: PO-1301 — latest ETA: 2027-04-02 (earlier thread said 2027-04-07).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0033","message":"Fwd: PO-1302 — latest ETA: 2027-04-03 (earlier thread said 2027-04-08).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0034","message":"Fwd: PO-1303 — latest ETA: 2027-04-04 (earlier thread said 2027-04-09).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0035","message":"Fwd: PO-1304 — latest ETA: 2027-04-05 (earlier thread said 2027-04-10).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0036","message":"Fwd: PO-1305 — latest ETA: 2027-04-06 (earlier thread said 2027-04-11).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0037","message":"Fwd: PO-1306 — latest ETA: 2027-04-07 (earlier thread said 2027-04-12).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0038","message":"Fwd: PO-1307 — latest ETA: 2027-04-08 (earlier thread said 2027-04-13).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0039","message":"Fwd: PO-1308 — latest ETA: 2027-04-09 (earlier thread said 2027-04-14).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0040","message":"Fwd: PO-1309 — latest ETA: 2027-04-10 (earlier thread said 2027-04-15).","templateFamily":"eta-iso-forwarded","split":"development"}
+{"id":"sup-0041","message":"PO-1400: We can supply 20 of the 30 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0042","message":"PO-1401: We can supply 21 of the 31 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0043","message":"PO-1402: We can supply 22 of the 32 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0044","message":"PO-1403: We can supply 23 of the 33 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0045","message":"PO-1404: We can supply 24 of the 34 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0046","message":"PO-1405: We can supply 25 of the 35 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0047","message":"PO-1406: We can supply 26 of the 36 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0048","message":"PO-1407: We can supply 27 of the 37 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0049","message":"PO-1408: We can supply 28 of the 38 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0050","message":"PO-1409: We can supply 29 of the 39 ordered units.","templateFamily":"quantity-reduction-direct","split":"development"}
+{"id":"sup-0051","message":"Forwarded update for PO-1500: revised quantity is 12; prior quote of 22 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0052","message":"Forwarded update for PO-1501: revised quantity is 13; prior quote of 23 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0053","message":"Forwarded update for PO-1502: revised quantity is 14; prior quote of 24 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0054","message":"Forwarded update for PO-1503: revised quantity is 15; prior quote of 25 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0055","message":"Forwarded update for PO-1504: revised quantity is 16; prior quote of 26 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0056","message":"Forwarded update for PO-1505: revised quantity is 17; prior quote of 27 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0057","message":"Forwarded update for PO-1506: revised quantity is 18; prior quote of 28 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0058","message":"Forwarded update for PO-1507: revised quantity is 19; prior quote of 29 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0059","message":"Forwarded update for PO-1508: revised quantity is 20; prior quote of 30 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0060","message":"Forwarded update for PO-1509: revised quantity is 21; prior quote of 31 is superseded.","templateFamily":"quantity-reduction-forwarded","split":"development"}
+{"id":"sup-0061","message":"PO-1600: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0062","message":"PO-1601: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0063","message":"PO-1602: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0064","message":"PO-1603: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0065","message":"PO-1604: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0066","message":"PO-1605: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0067","message":"PO-1606: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0068","message":"PO-1607: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0069","message":"PO-1608: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0070","message":"PO-1609: Production is underway; we will update you after inspection.","templateFamily":"general-status-direct","split":"development"}
+{"id":"sup-0071","message":"Fwd: Our team is checking production capacity for PO-1700; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0072","message":"Fwd: Our team is checking production capacity for PO-1701; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0073","message":"Fwd: Our team is checking production capacity for PO-1702; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0074","message":"Fwd: Our team is checking production capacity for PO-1703; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0075","message":"Fwd: Our team is checking production capacity for PO-1704; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0076","message":"Fwd: Our team is checking production capacity for PO-1705; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0077","message":"Fwd: Our team is checking production capacity for PO-1706; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0078","message":"Fwd: Our team is checking production capacity for PO-1707; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0079","message":"Fwd: Our team is checking production capacity for PO-1708; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0080","message":"Fwd: Our team is checking production capacity for PO-1709; no date or quantity is confirmed.","templateFamily":"general-status-forwarded","split":"development"}
+{"id":"sup-0081","message":"We confirm 6 units will ship on 2027-05-01.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0082","message":"We confirm 7 units will ship on 2027-05-02.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0083","message":"We confirm 8 units will ship on 2027-05-03.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0084","message":"We confirm 9 units will ship on 2027-05-04.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0085","message":"We confirm 10 units will ship on 2027-05-05.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0086","message":"We confirm 11 units will ship on 2027-05-06.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0087","message":"We confirm 12 units will ship on 2027-05-07.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0088","message":"We confirm 13 units will ship on 2027-05-08.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0089","message":"We confirm 14 units will ship on 2027-05-09.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0090","message":"We confirm 15 units will ship on 2027-05-10.","templateFamily":"missing-po-date","split":"development"}
+{"id":"sup-0091","message":"Revised ETA for your order is 2027-06-01; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0092","message":"Revised ETA for your order is 2027-06-02; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0093","message":"Revised ETA for your order is 2027-06-03; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0094","message":"Revised ETA for your order is 2027-06-04; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0095","message":"Revised ETA for your order is 2027-06-05; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0096","message":"Revised ETA for your order is 2027-06-06; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0097","message":"Revised ETA for your order is 2027-06-07; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0098","message":"Revised ETA for your order is 2027-06-08; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0099","message":"Revised ETA for your order is 2027-06-09; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0100","message":"Revised ETA for your order is 2027-06-10; the purchase order number is not on this email.","templateFamily":"missing-po-quantity","split":"development"}
+{"id":"sup-0101","message":"Confirmed: 7 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0102","message":"Confirmed: 8 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0103","message":"Confirmed: 9 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0104","message":"Confirmed: 10 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0105","message":"Confirmed: 11 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0106","message":"Confirmed: 12 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0107","message":"Confirmed: 13 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0108","message":"Confirmed: 14 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0109","message":"Confirmed: 15 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0110","message":"Confirmed: 16 units are ready to ship, PO reference omitted.","templateFamily":"missing-po-confirmation","split":"development"}
+{"id":"sup-0111","message":"PO-1800: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0112","message":"PO-1801: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0113","message":"PO-1802: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0114","message":"PO-1803: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0115","message":"PO-1804: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0116","message":"PO-1805: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0117","message":"PO-1806: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0118","message":"PO-1807: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0119","message":"PO-1808: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0120","message":"PO-1809: ETA 04/05/2027. Please confirm which date format applies.","templateFamily":"ambiguous-date-numeric","split":"development"}
+{"id":"sup-0121","message":"PO-1900: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0122","message":"PO-1901: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0123","message":"PO-1902: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0124","message":"PO-1903: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0125","message":"PO-1904: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0126","message":"PO-1905: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0127","message":"PO-1906: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0128","message":"PO-1907: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0129","message":"PO-1908: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0130","message":"PO-1909: Delivery will be on 5/6; year and date format are unclear.","templateFamily":"ambiguous-date-month-day","split":"development"}
+{"id":"sup-0131","message":"PO-2000: We may ship 8 units on 2027-07-01 or 2027-07-02; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0132","message":"PO-2001: We may ship 9 units on 2027-07-02 or 2027-07-03; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0133","message":"PO-2002: We may ship 10 units on 2027-07-03 or 2027-07-04; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0134","message":"PO-2003: We may ship 11 units on 2027-07-04 or 2027-07-05; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0135","message":"PO-2004: We may ship 12 units on 2027-07-05 or 2027-07-06; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0136","message":"PO-2005: We may ship 13 units on 2027-07-06 or 2027-07-07; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0137","message":"PO-2006: We may ship 14 units on 2027-07-07 or 2027-07-08; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0138","message":"PO-2007: We may ship 15 units on 2027-07-08 or 2027-07-09; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0139","message":"PO-2008: We may ship 16 units on 2027-07-09 or 2027-07-10; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0140","message":"PO-2009: We may ship 17 units on 2027-07-10 or 2027-07-11; date not finalized.","templateFamily":"ambiguous-date-two-options","split":"development"}
+{"id":"sup-0141","message":"PO-2100: We can ship one (1) units on 2027-08-01.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0142","message":"PO-2101: We can ship two (2) units on 2027-08-02.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0143","message":"PO-2102: We can ship three (3) units on 2027-08-03.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0144","message":"PO-2103: We can ship four (4) units on 2027-08-04.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0145","message":"PO-2104: We can ship five (5) units on 2027-08-05.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0146","message":"PO-2105: We can ship six (6) units on 2027-08-06.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0147","message":"PO-2106: We can ship seven (7) units on 2027-08-07.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0148","message":"PO-2107: We can ship eight (8) units on 2027-08-08.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0149","message":"PO-2108: We can ship nine (9) units on 2027-08-09.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0150","message":"PO-2109: We can ship ten (10) units on 2027-08-10.","templateFamily":"quantity-word-numeral","split":"development"}
+{"id":"sup-0151","message":"PO-2200: We expect between 10 and 15 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0152","message":"PO-2201: We expect between 11 and 16 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0153","message":"PO-2202: We expect between 12 and 17 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0154","message":"PO-2203: We expect between 13 and 18 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0155","message":"PO-2204: We expect between 14 and 19 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0156","message":"PO-2205: We expect between 15 and 20 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0157","message":"PO-2206: We expect between 16 and 21 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0158","message":"PO-2207: We expect between 17 and 22 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0159","message":"PO-2208: We expect between 18 and 23 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0160","message":"PO-2209: We expect between 19 and 24 units; final quantity is pending.","templateFamily":"quantity-range","split":"development"}
+{"id":"sup-0161","message":"PO-2300: Body says 10 units, attached note says 20; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0162","message":"PO-2301: Body says 11 units, attached note says 21; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0163","message":"PO-2302: Body says 12 units, attached note says 22; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0164","message":"PO-2303: Body says 13 units, attached note says 23; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0165","message":"PO-2304: Body says 14 units, attached note says 24; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0166","message":"PO-2305: Body says 15 units, attached note says 25; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0167","message":"PO-2306: Body says 16 units, attached note says 26; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0168","message":"PO-2307: Body says 17 units, attached note says 27; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0169","message":"PO-2308: Body says 18 units, attached note says 28; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0170","message":"PO-2309: Body says 19 units, attached note says 29; please verify.","templateFamily":"quantity-conflict","split":"development"}
+{"id":"sup-0171","message":"Fwd chain: PO-2400. Ignore quoted ETA 2027-09-05; latest supplier update confirms 2027-09-01.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0172","message":"Fwd chain: PO-2401. Ignore quoted ETA 2027-09-06; latest supplier update confirms 2027-09-02.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0173","message":"Fwd chain: PO-2402. Ignore quoted ETA 2027-09-07; latest supplier update confirms 2027-09-03.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0174","message":"Fwd chain: PO-2403. Ignore quoted ETA 2027-09-08; latest supplier update confirms 2027-09-04.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0175","message":"Fwd chain: PO-2404. Ignore quoted ETA 2027-09-09; latest supplier update confirms 2027-09-05.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0176","message":"Fwd chain: PO-2405. Ignore quoted ETA 2027-09-10; latest supplier update confirms 2027-09-06.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0177","message":"Fwd chain: PO-2406. Ignore quoted ETA 2027-09-11; latest supplier update confirms 2027-09-07.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0178","message":"Fwd chain: PO-2407. Ignore quoted ETA 2027-09-12; latest supplier update confirms 2027-09-08.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0179","message":"Fwd chain: PO-2408. Ignore quoted ETA 2027-09-13; latest supplier update confirms 2027-09-09.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0180","message":"Fwd chain: PO-2409. Ignore quoted ETA 2027-09-14; latest supplier update confirms 2027-09-10.","templateFamily":"forwarded-corrected-eta","split":"development"}
+{"id":"sup-0181","message":"Fwd chain for PO-2500. Quoted 30; correction from supplier: 18 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0182","message":"Fwd chain for PO-2501. Quoted 31; correction from supplier: 19 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0183","message":"Fwd chain for PO-2502. Quoted 32; correction from supplier: 20 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0184","message":"Fwd chain for PO-2503. Quoted 33; correction from supplier: 21 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0185","message":"Fwd chain for PO-2504. Quoted 34; correction from supplier: 22 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0186","message":"Fwd chain for PO-2505. Quoted 35; correction from supplier: 23 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0187","message":"Fwd chain for PO-2506. Quoted 36; correction from supplier: 24 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0188","message":"Fwd chain for PO-2507. Quoted 37; correction from supplier: 25 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0189","message":"Fwd chain for PO-2508. Quoted 38; correction from supplier: 26 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0190","message":"Fwd chain for PO-2509. Quoted 39; correction from supplier: 27 units.","templateFamily":"forwarded-corrected-quantity","split":"validation"}
+{"id":"sup-0191","message":"PO-2600: Latest message says no commitment yet. Quoted text: “ship 7 units by 2027-10-01”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0192","message":"PO-2601: Latest message says no commitment yet. Quoted text: “ship 8 units by 2027-10-02”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0193","message":"PO-2602: Latest message says no commitment yet. Quoted text: “ship 9 units by 2027-10-03”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0194","message":"PO-2603: Latest message says no commitment yet. Quoted text: “ship 10 units by 2027-10-04”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0195","message":"PO-2604: Latest message says no commitment yet. Quoted text: “ship 11 units by 2027-10-05”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0196","message":"PO-2605: Latest message says no commitment yet. Quoted text: “ship 12 units by 2027-10-06”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0197","message":"PO-2606: Latest message says no commitment yet. Quoted text: “ship 13 units by 2027-10-07”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0198","message":"PO-2607: Latest message says no commitment yet. Quoted text: “ship 14 units by 2027-10-08”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0199","message":"PO-2608: Latest message says no commitment yet. Quoted text: “ship 15 units by 2027-10-09”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0200","message":"PO-2609: Latest message says no commitment yet. Quoted text: “ship 16 units by 2027-10-10”.","templateFamily":"forwarded-stale-quote","split":"validation"}
+{"id":"sup-0201","message":"PO-2700: The previously confirmed 9 units for 2027-11-01 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0202","message":"PO-2701: The previously confirmed 10 units for 2027-11-02 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0203","message":"PO-2702: The previously confirmed 11 units for 2027-11-03 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0204","message":"PO-2703: The previously confirmed 12 units for 2027-11-04 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0205","message":"PO-2704: The previously confirmed 13 units for 2027-11-05 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0206","message":"PO-2705: The previously confirmed 14 units for 2027-11-06 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0207","message":"PO-2706: The previously confirmed 15 units for 2027-11-07 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0208","message":"PO-2707: The previously confirmed 16 units for 2027-11-08 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0209","message":"PO-2708: The previously confirmed 17 units for 2027-11-09 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0210","message":"PO-2709: The previously confirmed 18 units for 2027-11-10 are cancelled; replacement date pending.","templateFamily":"cancelled-commitment","split":"validation"}
+{"id":"sup-0211","message":"PO-2800: 10 units shipped today; the remaining 5 will follow on 2027-12-01.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0212","message":"PO-2801: 11 units shipped today; the remaining 6 will follow on 2027-12-02.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0213","message":"PO-2802: 12 units shipped today; the remaining 7 will follow on 2027-12-03.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0214","message":"PO-2803: 13 units shipped today; the remaining 8 will follow on 2027-12-04.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0215","message":"PO-2804: 14 units shipped today; the remaining 9 will follow on 2027-12-05.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0216","message":"PO-2805: 15 units shipped today; the remaining 10 will follow on 2027-12-06.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0217","message":"PO-2806: 16 units shipped today; the remaining 11 will follow on 2027-12-07.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0218","message":"PO-2807: 17 units shipped today; the remaining 12 will follow on 2027-12-08.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0219","message":"PO-2808: 18 units shipped today; the remaining 13 will follow on 2027-12-09.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0220","message":"PO-2809: 19 units shipped today; the remaining 14 will follow on 2027-12-10.","templateFamily":"partial-shipment","split":"validation"}
+{"id":"sup-0221","message":"We accept PO-2900: 11 pieces, delivery 2028-01-01.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0222","message":"We accept PO-2901: 12 pieces, delivery 2028-01-02.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0223","message":"We accept PO-2902: 13 pieces, delivery 2028-01-03.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0224","message":"We accept PO-2903: 14 pieces, delivery 2028-01-04.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0225","message":"We accept PO-2904: 15 pieces, delivery 2028-01-05.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0226","message":"We accept PO-2905: 16 pieces, delivery 2028-01-06.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0227","message":"We accept PO-2906: 17 pieces, delivery 2028-01-07.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0228","message":"We accept PO-2907: 18 pieces, delivery 2028-01-08.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0229","message":"We accept PO-2908: 19 pieces, delivery 2028-01-09.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0230","message":"We accept PO-2909: 20 pieces, delivery 2028-01-10.","templateFamily":"new-commitment-explicit","split":"validation"}
+{"id":"sup-0231","message":"PO-3000 is delayed; new confirmed arrival is 2028-02-01.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0232","message":"PO-3001 is delayed; new confirmed arrival is 2028-02-02.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0233","message":"PO-3002 is delayed; new confirmed arrival is 2028-02-03.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0234","message":"PO-3003 is delayed; new confirmed arrival is 2028-02-04.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0235","message":"PO-3004 is delayed; new confirmed arrival is 2028-02-05.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0236","message":"PO-3005 is delayed; new confirmed arrival is 2028-02-06.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0237","message":"PO-3006 is delayed; new confirmed arrival is 2028-02-07.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0238","message":"PO-3007 is delayed; new confirmed arrival is 2028-02-08.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0239","message":"PO-3008 is delayed; new confirmed arrival is 2028-02-09.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0240","message":"PO-3009 is delayed; new confirmed arrival is 2028-02-10.","templateFamily":"eta-delay-explicit","split":"validation"}
+{"id":"sup-0241","message":"Good news for PO-3100: delivery pulled forward to 2028-03-01.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0242","message":"Good news for PO-3101: delivery pulled forward to 2028-03-02.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0243","message":"Good news for PO-3102: delivery pulled forward to 2028-03-03.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0244","message":"Good news for PO-3103: delivery pulled forward to 2028-03-04.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0245","message":"Good news for PO-3104: delivery pulled forward to 2028-03-05.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0246","message":"Good news for PO-3105: delivery pulled forward to 2028-03-06.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0247","message":"Good news for PO-3106: delivery pulled forward to 2028-03-07.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0248","message":"Good news for PO-3107: delivery pulled forward to 2028-03-08.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0249","message":"Good news for PO-3108: delivery pulled forward to 2028-03-09.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0250","message":"Good news for PO-3109: delivery pulled forward to 2028-03-10.","templateFamily":"eta-early-explicit","split":"holdout"}
+{"id":"sup-0251","message":"PO-3200: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0252","message":"PO-3201: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0253","message":"PO-3202: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0254","message":"PO-3203: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0255","message":"PO-3204: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0256","message":"PO-3205: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0257","message":"PO-3206: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0258","message":"PO-3207: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0259","message":"PO-3208: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0260","message":"PO-3209: We are waiting for factory confirmation and cannot commit to a ship date.","templateFamily":"no-commitment-awaiting","split":"holdout"}
+{"id":"sup-0261","message":"PO-3300 / PO-3300I: 10 units scheduled 2028-04-01; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0262","message":"PO-3301 / PO-3301I: 11 units scheduled 2028-04-02; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0263","message":"PO-3302 / PO-3302I: 12 units scheduled 2028-04-03; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0264","message":"PO-3303 / PO-3303I: 13 units scheduled 2028-04-04; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0265","message":"PO-3304 / PO-3304I: 14 units scheduled 2028-04-05; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0266","message":"PO-3305 / PO-3305I: 15 units scheduled 2028-04-06; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0267","message":"PO-3306 / PO-3306I: 16 units scheduled 2028-04-07; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0268","message":"PO-3307 / PO-3307I: 17 units scheduled 2028-04-08; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0269","message":"PO-3308 / PO-3308I: 18 units scheduled 2028-04-09; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0270","message":"PO-3309 / PO-3309I: 19 units scheduled 2028-04-10; reference needs confirmation.","templateFamily":"po-confusable-reference","split":"holdout"}
+{"id":"sup-0271","message":"PO-3400 and PO-3500: 6 units arrive 2028-05-01; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0272","message":"PO-3401 and PO-3501: 7 units arrive 2028-05-02; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0273","message":"PO-3402 and PO-3502: 8 units arrive 2028-05-03; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0274","message":"PO-3403 and PO-3503: 9 units arrive 2028-05-04; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0275","message":"PO-3404 and PO-3504: 10 units arrive 2028-05-05; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0276","message":"PO-3405 and PO-3505: 11 units arrive 2028-05-06; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0277","message":"PO-3406 and PO-3506: 12 units arrive 2028-05-07; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0278","message":"PO-3407 and PO-3507: 13 units arrive 2028-05-08; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0279","message":"PO-3408 and PO-3508: 14 units arrive 2028-05-09; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0280","message":"PO-3409 and PO-3509: 15 units arrive 2028-05-10; which order does this concern?","templateFamily":"multiple-po-refs","split":"holdout"}
+{"id":"sup-0281","message":"PO-3600: We expect 8 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0282","message":"PO-3601: We expect 9 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0283","message":"PO-3602: We expect 10 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0284","message":"PO-3603: We expect 11 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0285","message":"PO-3604: We expect 12 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0286","message":"PO-3605: We expect 13 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0287","message":"PO-3606: We expect 14 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0288","message":"PO-3607: We expect 15 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0289","message":"PO-3608: We expect 16 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0290","message":"PO-3609: We expect 17 units next month, but have no confirmed ETA.","templateFamily":"date-relative-only","split":"holdout"}
+{"id":"sup-0291","message":"PO-3700: PO-3700 will arrive 2028-06-01; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0292","message":"PO-3701: PO-3701 will arrive 2028-06-02; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0293","message":"PO-3702: PO-3702 will arrive 2028-06-03; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0294","message":"PO-3703: PO-3703 will arrive 2028-06-04; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0295","message":"PO-3704: PO-3704 will arrive 2028-06-05; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0296","message":"PO-3705: PO-3705 will arrive 2028-06-06; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0297","message":"PO-3706: PO-3706 will arrive 2028-06-07; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0298","message":"PO-3707: PO-3707 will arrive 2028-06-08; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0299","message":"PO-3708: PO-3708 will arrive 2028-06-09; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}
+{"id":"sup-0300","message":"PO-3709: PO-3709 will arrive 2028-06-10; quantity is still being checked.","templateFamily":"quantity-unspecified","split":"holdout"}

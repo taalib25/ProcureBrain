@@ -1,0 +1,27 @@
+{
+  "name": "@procurebrain/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc --outDir dist --noEmit false && mkdir -p dist/apps/api/migrations && cp migrations/*.sql dist/apps/api/migrations/ && cp -r document-ocr dist/apps/api/",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@procurebrain/domain": "workspace:*",
+    "@procurebrain/ingestion": "workspace:*",
+    "dotenv": "^18.0.3",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.6.14",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

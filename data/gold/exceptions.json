@@ -1,0 +1,15 @@
+[
+  {
+    "name": "all-five-rules",
+    "now": "2025-02-01T00:00:00Z",
+    "events": [
+      {"id":"created","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"PO_CREATED","occurredAt":"2025-01-01T00:00:00Z","ingestedAt":"2025-01-01T00:00:01Z","sourceRecordId":"src-created","payload":{"quantity":10},"schemaVersion":1},
+      {"id":"eta-confirmed","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"SUPPLIER_ETA_CONFIRMED","occurredAt":"2025-01-02T00:00:00Z","ingestedAt":"2025-01-02T00:00:01Z","sourceRecordId":"src-eta-1","payload":{"eta":"2025-01-10"},"schemaVersion":1},
+      {"id":"eta-changed","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"SUPPLIER_ETA_CHANGED","occurredAt":"2025-01-03T00:00:00Z","ingestedAt":"2025-01-03T00:00:01Z","sourceRecordId":"src-eta-2","payload":{"eta":"2025-01-20"},"schemaVersion":1},
+      {"id":"qty","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"SUPPLIER_QUANTITY_REDUCED","occurredAt":"2025-01-04T00:00:00Z","ingestedAt":"2025-01-04T00:00:01Z","sourceRecordId":"src-qty","payload":{"quantity":8},"schemaVersion":1},
+      {"id":"receipt","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"GOODS_RECEIVED","occurredAt":"2025-01-05T00:00:00Z","ingestedAt":"2025-01-05T00:00:01Z","sourceRecordId":"src-receipt","payload":{"quantity":3},"schemaVersion":1},
+      {"id":"followup","entityType":"PURCHASE_ORDER","entityId":"po-1","eventType":"FOLLOWUP_SENT","occurredAt":"2025-01-06T00:00:00Z","ingestedAt":"2025-01-06T00:00:01Z","sourceRecordId":"src-followup","payload":{},"schemaVersion":1}
+    ],
+    "expectedTypes": ["LATE_PO","QUANTITY_SHORT","RECEIPT_SHORT","FOLLOWUP_OVERDUE","ETA_CHANGED"]
+  }
+]

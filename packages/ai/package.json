@@ -1,0 +1,20 @@
+{
+  "name": "@procurebrain/ai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:dataset": "node --experimental-strip-types scripts/generate-dataset.ts",
+    "evaluate:dataset": "node --experimental-strip-types scripts/evaluate-dataset.ts",
+    "build:context": "node --experimental-strip-types scripts/build-context.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@procurebrain/analysis-cache": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

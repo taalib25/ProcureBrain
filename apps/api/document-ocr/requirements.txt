@@ -1,0 +1,4 @@
+# PaddlePaddle 3.3+ currently hits a CPU oneDNN/PIR conversion error in the
+# PP-StructureV3 inference path. 3.2.2 is the tested local CPU combination.
+paddlepaddle==3.2.2
+paddleocr[doc-parser]==3.7.0

@@ -1,10 +1,12 @@
 # ProcureBrain
 
-**Status: under active development.** Procurement teams need a quick answer to a simple question: **which purchase orders changed or need attention, and what evidence explains why?** ProcureBrain is a prototype that turns imported PO activity into a timeline and an exception queue, so a buyer can see late orders, quantity mismatches, and the source records behind them.
+**Status: under active development.** A small-business owner who handles purchasing needs a quick answer to a simple question: **which order changed or needs attention, and what evidence explains why?** ProcureBrain is a prototype that turns imported purchase-order activity into a timeline and an attention queue, so the owner can spot late orders and quantity mismatches.
 
 The current workflow starts with CSV imports. Supplier messages can also be analyzed separately to produce a review-only proposal; that proposal does not update a purchase order. There is no inbox connection or approve-and-apply flow yet. The project is not production-ready, and AI extraction has only been measured on a small synthetic benchmark, not a representative set of real supplier messages. Treat model output as a proposal, not a verified operational fact.
 
 For the plain-language problem, solution, and a short demo script, see [the product story](docs/PRODUCT_STORY.md).
+
+See [what is implemented and what to do next](docs/PROJECT_STATUS.md) for the project roadmap.
 
 ## What it does today
 

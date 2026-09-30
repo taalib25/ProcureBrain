@@ -2,13 +2,13 @@
 
 ## The problem in one sentence
 
-When supplier dates or quantities change, procurement buyers can miss the change across order records and updates, then discover the delay or shortage only when it affects delivery.
+When a supplier changes a delivery date or quantity, a small-business owner who also handles purchasing can miss the update among order records and messages, then discover the delay or shortage when it affects their business.
 
 This is the problem the project is designed to explore. It is a product hypothesis, not a claim that customer interviews or production data have validated it.
 
 ## Who it is for
 
-The first intended user is a procurement buyer who tracks open purchase orders and needs to decide which supplier or order to follow up on next.
+The first intended user is a small-business owner who places orders themselves and has to keep track of supplier promises alongside other responsibilities.
 
 ## The solution in one sentence
 
@@ -42,7 +42,7 @@ For a separate AI example, paste a supplier message and show the proposal. Say: 
 
 ## A simple presentation script
 
-> Buyers often have to scan order records and supplier updates to work out what changed and what needs follow-up. ProcureBrain is an early prototype for making that easier: it turns imported PO activity into a timeline and attention queue, with source evidence attached. It can also extract a proposed update from supplier text, but a person still needs to review it, and the proposal does not yet update the order. I’m currently improving the evaluation and the end-to-end review workflow.
+> When you run a small business, purchasing is one of many things competing for your attention. A supplier can move a delivery date or change a quantity, and that update can get lost among messages and order records. ProcureBrain is an early prototype that turns imported PO activity into a timeline and an attention queue, with source evidence attached. It can also draft an update from supplier text, but that draft still needs review and does not update the order yet.
 
 ## Short CV wording
 

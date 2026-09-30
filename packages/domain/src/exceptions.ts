@@ -112,7 +112,9 @@ function detectForPo(events: readonly Event[], options: ExceptionOptions, now: s
 
   let previousEta: string | null = null;
   for (const event of ordered) {
-    if (event.eventType === "SUPPLIER_ETA_CONFIRMED" && validDate(event.payload.eta)) {
+    if (event.eventType === "PO_CREATED" && validDate(event.payload.expectedDeliveryDate)) {
+      previousEta = event.payload.expectedDeliveryDate;
+    } else if (event.eventType === "SUPPLIER_ETA_CONFIRMED" && validDate(event.payload.eta)) {
       previousEta = event.payload.eta;
     } else if (
       event.eventType === "SUPPLIER_ETA_CHANGED" &&

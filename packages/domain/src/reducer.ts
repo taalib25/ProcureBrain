@@ -33,6 +33,7 @@ export function reducePurchaseOrder(
       next.supplierId = event.payload.supplierId ?? next.supplierId;
       next.supplierName = event.payload.supplierName ?? next.supplierName;
       next.orderedQuantity = event.payload.quantity ?? next.orderedQuantity;
+      next.eta = event.payload.expectedDeliveryDate ?? next.eta;
       break;
     case "SUPPLIER_ETA_CONFIRMED":
     case "SUPPLIER_ETA_CHANGED":

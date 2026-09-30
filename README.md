@@ -1,31 +1,30 @@
 # ProcureBrain
 
-**Status: under active development.** ProcureBrain is a procurement operations prototype that turns purchase order activity into a replayable timeline, highlights deterministic exceptions, and helps teams review supplier updates with their supporting evidence.
+**Status: under active development.** Procurement teams need a quick answer to a simple question: **which purchase orders changed or need attention, and what evidence explains why?** ProcureBrain is a prototype that turns imported PO activity into a timeline and an exception queue, so a buyer can see late orders, quantity mismatches, and the source records behind them.
 
-The core workflow is implemented, but the project is not production-ready. AI supplier-message extraction has one measured result on a small synthetic benchmark; it has not been evaluated on a representative labeled set of real supplier messages. Treat model output as a review proposal, not as a verified operational fact.
+The current workflow starts with CSV imports. Supplier messages can also be analyzed separately to produce a review-only proposal; that proposal does not update a purchase order. There is no inbox connection or approve-and-apply flow yet. The project is not production-ready, and AI extraction has only been measured on a small synthetic benchmark, not a representative set of real supplier messages. Treat model output as a proposal, not a verified operational fact.
 
-## What it does
+For the plain-language problem, solution, and a short demo script, see [the product story](docs/PRODUCT_STORY.md).
 
-- Imports purchase orders, supplier updates, receipts, and follow-ups from CSV.
+## What it does today
+
+- Imports purchase orders, supplier ETA updates, receipts, and follow-ups from CSV.
 - Stores operational changes as immutable events and rebuilds current purchase-order state by replaying them.
 - Detects exceptions such as overdue orders and quantity mismatches, with evidence attached to each result.
-- Analyzes supplier text and uploaded images or PDFs. Local PaddleOCR runs first for documents; a configured language model can turn extracted text into a typed proposal for human review.
+- Analyzes pasted supplier text and uploaded images or PDFs. Local PaddleOCR runs first for documents; a configured language model can turn extracted text into a typed proposal for human review.
 - Caches analysis runs and can persist source records, events, and cache data in PostgreSQL.
 
-AI analysis is deliberately proposal-only: it does not create or change operational events. CSV normalization and exception detection are deterministic and do not use model tokens.
+CSV normalization and exception detection are deterministic and do not use model tokens. AI analysis is separate and proposal-only: it does not create or change operational events.
 
 ## Architecture
 
 ```text
-CSV / supplier message / document
-                ↓
-       source evidence record
-                ↓
-  canonical events (human approved)
-                ↓
-     pure purchase-order reducer
-                ↓
-      exception and attention queue
+CSV import → source evidence + canonical events → PO timeline and current state
+                                             ↓
+                                  exception / attention queue
+
+Supplier text / document → AI extraction proposal → human review
+                                                  (not applied to PO yet)
 ```
 
 The workspace is organized as a pnpm monorepo:
@@ -100,6 +99,7 @@ Copy `.env.example` for local configuration. Never commit `.env`, API keys, data
 
 ## Project documents
 
+- [Product story and demo script](docs/PRODUCT_STORY.md)
 - [Dataset and code walkthrough](docs/PROJECT_WALKTHROUGH.md)
 - [First supplier extraction evaluation](docs/evaluations/2026-09-30-holdout.md)
 - [Architecture](docs/ARCHITECTURE.md)

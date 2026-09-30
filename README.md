@@ -95,6 +95,7 @@ Copy `.env.example` for local configuration. Never commit `.env`, API keys, data
 
 ## Project documents
 
+- [Dataset and code walkthrough](docs/PROJECT_WALKTHROUGH.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Event contract](docs/EVENT_CONTRACT.md)
 - [Design decisions](docs/DECISIONS.md)

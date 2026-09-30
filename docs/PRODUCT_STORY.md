@@ -23,35 +23,36 @@ The useful question it should answer is: **“Which PO needs me, and what change
 3. Replay the event history into the current PO state.
 4. Derive attention items such as overdue delivery or quantity mismatch.
 5. Open a PO to inspect its timeline and source evidence.
-6. Separately, paste supplier text or upload a document to get a structured AI proposal for human review.
+6. Paste supplier text, select a PO, and get a structured AI proposal beside the current ETA.
+7. Review the original message, edit the proposed date if needed, and approve it to add an ETA event to that PO's timeline.
 
-The CSV/event path and AI analysis path are currently separate. The AI proposal does **not** update the PO timeline. The prototype has no email inbox integration or approve-and-apply interaction yet. State these limits when presenting it.
+The approved pasted-text path now connects to the PO timeline. It still requires a person to select the PO and approve the proposed ETA. Uploaded document analysis has no approve-and-apply step yet. There is no automatic email or messaging connection, and the saved event time currently represents when the message was analyzed, not the supplier's original send time. State these limits when presenting it.
 
 ## The clearest 15-second demo
 
 **Hook:** “A supplier moved the delivery date. Would you notice before the order becomes late?”
 
 1. Show a PO with its original ETA.
-2. Import a supplier-update CSV row with the new ETA.
-3. Show the PO's new ETA and the attention item or timeline entry.
-4. Open the source evidence so the viewer can see what supports the change.
+2. Paste a supplier message with the revised ETA and select that PO.
+3. Show the current date, proposed date, delay length, confidence, and original message.
+4. Approve the proposal and show the updated PO timeline and attention item.
 
 Keep the update date in the future if the goal is to show a changed ETA without also triggering an overdue flag. If demonstrating an overdue PO, use a past ETA deliberately and say that it is overdue.
 
-For a separate AI example, paste a supplier message and show the proposal. Say: “This is a draft extraction for review; it has not been applied to the order.” Do not cut the two separate flows together as if the model automatically changed the PO.
+The approval action records the user's decision; the model does not change the order by itself. Document uploads can be shown as a separate OCR analysis example until their approval flow is connected.
 
 ## A simple presentation script
 
-> When you run a small business, purchasing is one of many things competing for your attention. A supplier can move a delivery date or change a quantity, and that update can get lost among messages and order records. ProcureBrain is an early prototype that turns imported PO activity into a timeline and an attention queue, with source evidence attached. It can also draft an update from supplier text, but that draft still needs review and does not update the order yet.
+> When you run a small business, purchasing is one of many things competing for your attention. A supplier can move a delivery date or change a quantity, and that update can get lost among messages and order records. ProcureBrain is an early prototype that tracks imported PO activity and can turn pasted supplier text into an ETA change for you to review and approve. The approved change is recorded with its source message. Automatic inbox connections and document approval are still future work.
 
 ## Short CV wording
 
 **ProcureBrain — Procurement operations prototype**
 
 - Built a TypeScript application that imports purchase-order activity from CSV, replays events into current PO state, and surfaces deterministic exceptions such as overdue orders and quantity mismatches.
-- Added source-linked PO timelines and a separate AI-assisted supplier-message extraction flow that returns reviewable proposals.
+- Added source-linked PO timelines and a human approval flow for ETA proposals extracted from pasted supplier messages.
 - Evaluated extraction on a 60-example synthetic holdout: 45% exact complete-record match; documented field-level results and review-routing limitations. The benchmark is synthetic and does not establish real-world performance.
-- Project remains under active development; supplier-message proposals are not yet applied to operational records.
+- Project remains under active development; document approvals, automatic channel connections, and evaluation on representative real messages remain incomplete.
 
 Only use the accuracy bullet when there is room to explain that it is a small synthetic benchmark and that exact-record match includes all required fields and review decision.
 

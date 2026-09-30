@@ -1,7 +1,7 @@
 # ProcureBrain: project status and next steps
 
 **Audience:** a small-business owner who handles purchasing themselves.  
-**Status:** early prototype; useful core pieces exist, but the supplier-message workflow is not end to end and the problem has not yet been validated with target users.
+**Status:** early prototype; pasted-text ETA changes can now be reviewed and approved, while automatic channel connections and target-user validation remain incomplete.
 
 ## Map: built so far and what comes next
 
@@ -13,7 +13,10 @@ flowchart LR
     Events --> State[Replay events into current PO state and timeline]
     State --> Queue[Flag ETA changes, overdue orders, and quantity issues]
     Queue --> Evidence[Open a PO and inspect source evidence]
-    Text[Paste supplier text or upload a document] --> Proposal[AI returns a reviewable proposal]
+    Text[Paste supplier text] --> Proposal[AI returns a reviewable proposal]
+    Proposal --> Approval[Person edits or approves ETA]
+    Approval --> Applied[Approved ETA becomes a PO event]
+    Document[Upload a document] --> Ocr[OCR and analysis result for inspection]
     Eval[Run extraction benchmark on synthetic messages]
   end
 
@@ -21,13 +24,13 @@ flowchart LR
     direction TB
     Validate[1. Show the workflow to 3 small-business owners who do purchasing]
     Demo[2. Refine the demo around the problem they recognize]
-    Apply[3. Add edit, approve, and apply for a supplier proposal]
-    RealData[4. Evaluate on representative, permissioned supplier messages]
+    RealData[3. Evaluate on representative, permissioned supplier messages]
+    Channels[4. Add document approval or one automatic channel, based on owner feedback]
     Ready[5. Harden privacy, reliability, and deployment before real use]
-    Validate --> Demo --> Apply --> RealData --> Ready
+    Validate --> Demo --> RealData --> Channels --> Ready
   end
 
-  Proposal -. Does not update a PO today .-> Apply
+  Proposal -. Requires human approval .-> Approval
 ```
 
 ## What is implemented
@@ -36,15 +39,17 @@ flowchart LR
 - Event replay into a current PO view and timeline.
 - Deterministic attention rules for ETA changes, overdue POs, quantity shortfalls, receipt shortfalls, and overdue follow-ups.
 - Source records retained and linked from timeline events.
-- Separate supplier-text and document analysis that returns structured AI proposals for review.
+- Pasted supplier-text analysis that proposes an ETA change for a selected PO; the owner can edit and approve it, recording a source-linked event.
+- Document upload OCR and analysis that returns a result for inspection; applying a document-derived proposal is not connected yet.
 - A first extraction benchmark on a 60-message **synthetic** holdout. It recorded 45% exact complete-record match and found weak review routing. This does not measure performance on real supplier traffic; see the [evaluation report](evaluations/2026-09-30-holdout.md).
 - A product story and simple demo flow aimed at the small-business owner who handles purchasing.
 
 ## What is not complete
 
 - The target problem is still a hypothesis. There is no recorded feedback from small-business owners confirming how often this problem occurs or what outcome they would value most.
-- Supplier-message proposals are not connected to an edit, approve, or apply action. They do not create or change PO events.
-- The app has no email inbox integration; updates enter through CSV or manual paste/upload.
+- Automatic email or messaging capture is not implemented; supplier text must be pasted and the PO selected by a person.
+- Uploaded document results cannot yet be edited and approved into a PO event.
+- Approval records the analysis time as the event time. The interface does not yet capture the original supplier-message timestamp.
 - The benchmark is synthetic, small, and has known label inconsistencies. Real-world extraction and review safety are unknown.
 - This is not a production-ready service. Validate privacy, access control, deployment, and operational recovery before handling live business or supplier records.
 
@@ -54,19 +59,19 @@ flowchart LR
 
 Show the short demo to three small-business owners who personally place or track supplier orders. Ask them to describe the last time a supplier changed a date or quantity, how they found out, and what they did next. Record their wording and whether the attention queue would have changed their next action. Do not ask whether they “like the app”; ask about their recent behavior.
 
-**Decision:** if they recognize the problem, keep this as the first use case. If their recurring pain is different, revise the story before building the approval flow.
+**Decision:** if they recognize the problem, keep this as the first use case. If their recurring pain is different, revise the story before expanding the capture methods.
 
 ### 2. Make one demo path dependable
 
-Demonstrate: import a PO with its original ETA → import a revised ETA → see the changed date and attention item → open the source evidence. The current code has been updated to use the original PO ETA as the comparison baseline. The latest code passed TypeScript typechecking; this turn did not rerun the test suite or verify this workflow in the browser.
+Demonstrate: import a PO with its original ETA → paste a supplier message → review the new date, delay, and source → approve → see the new ETA in the PO timeline. The current code has been updated to use the original PO ETA as the comparison baseline. The latest code passed TypeScript typechecking; this turn did not rerun the test suite or verify this workflow in the browser.
 
-### 3. Connect AI proposals to a safe human decision
-
-After the user feedback supports this workflow, add a proposal review screen that shows the original source and extracted fields, lets the owner edit the values, and applies an approved proposal as a canonical event. Keep the source, reviewer decision, and resulting event linked for audit.
-
-### 4. Re-evaluate with better labels and representative data
+### 3. Evaluate with better labels and representative data
 
 Review the current synthetic label taxonomy, keep the examined holdout untouched, and collect a permissioned, redacted set of representative supplier messages with reviewed labels. Measure field extraction and review routing separately before making accuracy claims.
+
+### 4. Choose the next capture method from owner feedback
+
+Pasted text can now be approved into an ETA event. Ask owners whether this works for them, or whether document approval or an automatic connection to one channel matters more. Build the path they actually use.
 
 ### 5. Prepare for actual business use
 
@@ -74,4 +79,4 @@ Prioritize only after the workflow and data handling are clear: user access boun
 
 ## Immediate next action
 
-Prepare a short demo and use it in three conversations with small-business owners who handle purchasing. Learn whether missed supplier changes are a frequent problem for them before committing to the larger AI approval workflow.
+Prepare a short demo and use it in three conversations with small-business owners who handle purchasing. Learn whether missed supplier changes are a frequent problem for them and whether they would use the paste-and-approve flow.

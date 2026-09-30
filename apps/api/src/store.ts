@@ -4,10 +4,24 @@ import type { PurchaseOrderState } from "../../../packages/domain/src/purchase-o
 import { sortExceptions } from "../../../packages/domain/src/priority";
 import type { Event } from "../../../packages/domain/src/events";
 import { normalizeCsv, normalizePurchaseOrdersCsv, normalizeRows, type InputRow, type NormalizationResult, type PurchaseOrderReference } from "../../../packages/ingestion/src";
-import { idempotencyKey } from "../../../packages/ingestion/src/idempotency";
+import { canonicalEventId, idempotencyKey } from "../../../packages/ingestion/src/idempotency";
 import type { Pool } from "pg";
 
 export interface ImportResult { sourceRecordId: string; inserted: number; events: readonly Event[]; unresolved: readonly unknown[]; rejected: readonly unknown[] }
+export interface ApprovedEtaChange {
+  entityId: string;
+  expectedEta: string | null;
+  eta: string;
+  occurredAt: string;
+  sourceRecordId: string;
+  sourceText: string;
+}
+export type ApplyEtaResult =
+  | { status: "applied"; event: Event }
+  | { status: "already_applied"; event: Event }
+  | { status: "stale"; currentEta: string | null }
+  | { status: "unchanged" }
+  | { status: "unknown_po" };
 
 const initialReferences: PurchaseOrderReference[] = [
   { entityId: "po-1", poNumber: "PO-1001", aliases: ["1001"] },
@@ -54,6 +68,24 @@ export class MemoryStore {
   allEvents(): readonly Event[] { return this.events; }
   sources() { return [...this.sourceRecords.values()].map(({ content: _content, ...record }) => record); }
   source(id: string) { return this.sourceRecords.get(id); }
+  purchaseOrderReference(entityId: string): PurchaseOrderReference | undefined { return this.references.find((reference) => reference.entityId === entityId); }
+  applyApprovedEtaChange(input: ApprovedEtaChange): ApplyEtaResult {
+    const current = this.state(input.entityId);
+    if (!current || !this.purchaseOrderReference(input.entityId)) return { status: "unknown_po" };
+    if (current.eta !== input.expectedEta) return { status: "stale", currentEta: current.eta };
+    if (current.eta === input.eta) return { status: "unchanged" };
+    const event = approvedEtaEvent(input, current.eta);
+    const existing = this.events.find((item) => item.id === event.id);
+    if (existing) return { status: "already_applied", event: existing };
+    if (!this.sourceRecords.has(input.sourceRecordId)) this.sourceRecords.set(input.sourceRecordId, {
+      id: input.sourceRecordId,
+      content: input.sourceText,
+      sourceType: "supplier_message",
+      importedAt: new Date().toISOString(),
+    });
+    this.events.push(event);
+    return { status: "applied", event };
+  }
   purchaseOrders(): PurchaseOrderState[] {
     return this.references.map(({ entityId }) => replayPurchaseOrder(this.events.filter((event) => event.entityId === entityId), entityId));
   }
@@ -114,11 +146,55 @@ export class PostgresStore {
   }
   async source(id: string) { return (await this.pool.query("select id,source_type as \"sourceType\",source_name as \"sourceName\",content,metadata,imported_at as \"importedAt\" from source_records where id=$1", [id])).rows[0]; }
   async sources() { return (await this.pool.query("select id,source_type as \"sourceType\",source_name as \"sourceName\",metadata,imported_at as \"importedAt\" from source_records order by imported_at desc")).rows; }
+  async purchaseOrderReference(entityId: string): Promise<PurchaseOrderReference | undefined> {
+    const row = (await this.pool.query("select entity_id, po_number from purchase_orders where entity_id=$1", [entityId])).rows[0];
+    return row ? { entityId: String(row.entity_id), poNumber: String(row.po_number) } : undefined;
+  }
+  async applyApprovedEtaChange(input: ApprovedEtaChange): Promise<ApplyEtaResult> {
+    const current = await this.state(input.entityId);
+    if (!current || !await this.purchaseOrderReference(input.entityId)) return { status: "unknown_po" };
+    if (current.eta !== input.expectedEta) return { status: "stale", currentEta: current.eta };
+    if (current.eta === input.eta) return { status: "unchanged" };
+    const event = approvedEtaEvent(input, current.eta);
+    const client = await this.pool.connect();
+    try {
+      await client.query("begin");
+      await client.query(
+        "insert into source_records(id,source_type,content,metadata,imported_at) values($1,'supplier_message',$2,$3,now()) on conflict(id) do nothing",
+        [input.sourceRecordId, input.sourceText, { approved: true }],
+      );
+      const key = idempotencyKey({ sourceRecordId: event.sourceRecordId, entityId: event.entityId, eventType: event.eventType, occurredAt: event.occurredAt, payload: event.payload });
+      const inserted = await client.query(
+        "insert into canonical_events(id,idempotency_key,entity_type,entity_id,event_type,occurred_at,ingested_at,source_record_id,payload,schema_version) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) on conflict do nothing returning id",
+        [event.id, key, event.entityType, event.entityId, event.eventType, event.occurredAt, event.ingestedAt, event.sourceRecordId, event.payload, event.schemaVersion],
+      );
+      await client.query("commit");
+      return inserted.rowCount ? { status: "applied", event } : { status: "already_applied", event };
+    } catch (error) { await client.query("rollback"); throw error; } finally { client.release(); }
+  }
   async analysisRuns() { return (await this.pool.query("select * from analysis_runs order by created_at desc limit 100")).rows; }
   async purchaseOrders() { const events = await this.allEvents(); return (await this.references()).map(({ entityId }) => replayPurchaseOrder(events.filter((event) => event.entityId === entityId), entityId)); }
   async state(id: string) { const events = (await this.allEvents()).filter((event) => event.entityId === id); return events.length ? replayPurchaseOrder(events, id) : undefined; }
   async timeline(id: string) { return (await this.allEvents()).filter((event) => event.entityId === id); }
   async exceptions() { return sortExceptions(detectExceptions(await this.allEvents(), { now: new Date().toISOString() })); }
+}
+
+function approvedEtaEvent(input: ApprovedEtaChange, previousEta: string | null): Event {
+  const eventType: "SUPPLIER_ETA_CONFIRMED" | "SUPPLIER_ETA_CHANGED" = previousEta === null ? "SUPPLIER_ETA_CONFIRMED" : "SUPPLIER_ETA_CHANGED";
+  const value = {
+    entityId: input.entityId,
+    entityType: "PURCHASE_ORDER" as const,
+    eventType,
+    occurredAt: input.occurredAt,
+    sourceRecordId: input.sourceRecordId,
+    payload: { eta: input.eta },
+  };
+  return {
+    ...value,
+    id: canonicalEventId(value),
+    ingestedAt: new Date().toISOString(),
+    schemaVersion: 1,
+  };
 }
 
 function normalizeImportCsv(csv: string, sourceRecordId: string, refs: readonly PurchaseOrderReference[], sourceType = "supplier_updates"): NormalizationResult {

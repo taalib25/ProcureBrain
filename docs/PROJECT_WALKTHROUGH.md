@@ -58,9 +58,14 @@ Web form
   → reviewable EventProposal (packages/ai/src/adapter.ts)
   → versioned analysis cache
   → returned to the UI for human review
+  → POST /api/analysis/runs/:cacheKey/approve after the owner approves an ETA
+  → source record + canonical ETA event
+  → PO reducer and exception queue update
 ```
 
-The provider returns a proposed commitment. Zod checks that its shape is valid: dates use `YYYY-MM-DD`, quantities are nonnegative numbers or `null`, and the business type is one of the allowed values. `proposeSupplierCommitment` then assigns a workflow review state. The API does not turn this proposal into an operational event.
+The provider returns a proposed commitment. Zod checks that its shape is valid: dates use `YYYY-MM-DD`, quantities are nonnegative numbers or `null`, and the business type is one of the allowed values. `proposeSupplierCommitment` then assigns a workflow review state. The extraction endpoint only returns a proposal. When the owner selects the correct PO and approves an ETA, the separate approval endpoint checks the analysis run, confirms the extracted PO reference matches, confirms the ETA is still based on the current PO state, stores the original supplier text, and records a canonical ETA event. The owner can edit the proposed ETA before approving. The event time currently uses analysis-run creation time because the UI does not collect when the supplier sent the message.
+
+This approval flow is currently for pasted supplier text and ETA changes. Uploaded document analysis returns a result for inspection; it does not yet create an event. Automatic email and messaging connections are not implemented.
 
 The CSV path is a separate, deterministic path. It normalizes rows into canonical events; the domain reducer replays those events into current PO state; the exception engine derives attention items. It does not use the LLM to calculate exceptions.
 

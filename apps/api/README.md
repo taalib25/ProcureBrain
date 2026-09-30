@@ -34,7 +34,25 @@ supplier message with locally matched PO rows: the API rejects invalid context
 with `400`, forwards valid records as delimited `<po_context>` factual context
 while the original `text` remains the proposal `sourceText`, and includes the
 context in the versioned cache identity (context and no-context requests cache
-separately). Extraction stays proposal-only: results are review-state
-proposals and never mutate events. Review boundaries (`UNKNOWN_PO`,
-`AMBIGUOUS_PO`, `LOW_CONFIDENCE`, `DUPLICATE_SOURCE`) behave the same with or
-without context.
+separately).
+
+For the web review flow, the caller supplies the selected `entityId` when
+requesting supplier-text analysis. The API snapshots that PO's public reference
+and current ETA into the analysis run. The response includes the `cacheKey`.
+After a person reviews and optionally edits the proposed ETA, the client posts
+it to `/api/analysis/runs/:cacheKey/approve`. The API checks that the run is a
+supplier-text proposal, the extracted PO reference matches the selected order,
+the ETA is valid and different, and the PO ETA still matches the saved
+baseline. If another update changed the order in the meantime, approval returns
+`409` and asks the user to analyze again. Approval stores the original pasted
+message as a source record and adds a `SUPPLIER_ETA_CHANGED` event (or
+`SUPPLIER_ETA_CONFIRMED` when no prior ETA exists). The event time currently
+uses analysis-run creation time because the form does not capture the supplier
+message's original timestamp.
+
+Only this explicit human approval path writes an event from a text proposal.
+Document analysis still returns an inspection result and has no approval
+endpoint flow. Email and messaging integrations are not implemented. Review
+boundaries (`UNKNOWN_PO`, `AMBIGUOUS_PO`, `LOW_CONFIDENCE`, `DUPLICATE_SOURCE`)
+remain visible to the reviewer; the person must inspect the source before
+approving.

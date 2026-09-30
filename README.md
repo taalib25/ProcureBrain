@@ -2,7 +2,7 @@
 
 **Status: under active development.** A small-business owner who handles purchasing needs a quick answer to a simple question: **which order changed or needs attention, and what evidence explains why?** ProcureBrain is a prototype that turns imported purchase-order activity into a timeline and an attention queue, so the owner can spot late orders and quantity mismatches.
 
-The current workflow starts with CSV imports. Supplier messages can also be analyzed separately to produce a review-only proposal; that proposal does not update a purchase order. There is no inbox connection or approve-and-apply flow yet. The project is not production-ready, and AI extraction has only been measured on a small synthetic benchmark, not a representative set of real supplier messages. Treat model output as a proposal, not a verified operational fact.
+The current workflow starts with CSV imports. For pasted supplier text, the app can draft an ETA change, show it beside the PO's current date and source message, and record it after a person approves it. Document uploads still return analysis for inspection, and there is no inbox connection. The project is not production-ready, and AI extraction has only been measured on a small synthetic benchmark, not a representative set of real supplier messages. Treat model output as a proposal until a person reviews it.
 
 For the plain-language problem, solution, and a short demo script, see [the product story](docs/PRODUCT_STORY.md).
 
@@ -13,10 +13,10 @@ See [what is implemented and what to do next](docs/PROJECT_STATUS.md) for the pr
 - Imports purchase orders, supplier ETA updates, receipts, and follow-ups from CSV.
 - Stores operational changes as immutable events and rebuilds current purchase-order state by replaying them.
 - Detects exceptions such as overdue orders and quantity mismatches, with evidence attached to each result.
-- Analyzes pasted supplier text and uploaded images or PDFs. Local PaddleOCR runs first for documents; a configured language model can turn extracted text into a typed proposal for human review.
+- Analyzes pasted supplier text and uploaded images or PDFs. A pasted-text ETA proposal can be edited and approved into a PO event; document analysis is still inspection-only.
 - Caches analysis runs and can persist source records, events, and cache data in PostgreSQL.
 
-CSV normalization and exception detection are deterministic and do not use model tokens. AI analysis is separate and proposal-only: it does not create or change operational events.
+CSV normalization and exception detection are deterministic and do not use model tokens. Model analysis only creates a proposal; an approved proposal becomes an operational event after a person confirms it.
 
 ## Architecture
 
@@ -25,8 +25,8 @@ CSV import → source evidence + canonical events → PO timeline and current st
                                              ↓
                                   exception / attention queue
 
-Supplier text / document → AI extraction proposal → human review
-                                                  (not applied to PO yet)
+Pasted supplier text → AI proposal → human edits/approves → PO event → timeline/queue
+Document upload → OCR and AI analysis → inspect result (approval flow not connected yet)
 ```
 
 The workspace is organized as a pnpm monorepo:
@@ -37,7 +37,7 @@ The workspace is organized as a pnpm monorepo:
 - `packages/ingestion` — CSV normalization, entity resolution, and idempotency.
 - `packages/db` — Drizzle schema and PostgreSQL repository.
 - `packages/analysis-cache` — versioned, content-keyed analysis cache.
-- `packages/ai` — validated extraction proposals, provider adapters, and local context/evaluation utilities.
+- `packages/ai` — validated extraction proposals, provider adapters, and local context/evaluation utilities. The API records an ETA event only after explicit human approval.
 - `packages/evals` — deterministic exception scenarios and integration coverage.
 
 ## Technology

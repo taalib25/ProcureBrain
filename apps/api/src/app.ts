@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import type { Event } from "../../../packages/domain/src/events";
-import { normalizeCsv, type PurchaseOrderReference } from "../../../packages/ingestion/src";
+import { normalizeCsv, normalizePoReference, type PurchaseOrderReference } from "../../../packages/ingestion/src";
 import { analysisCacheKey, MemoryAnalysisCache, runCachedAnalysis, type AnalysisRun, type DurableAnalysisCache } from "../../../packages/analysis-cache/src";
 import { type ExtractionAdapter } from "../../../packages/ai/src/adapter";
 import { SupplierCommitmentSchema } from "../../../packages/ai/src/schema";
 import { PoContextArraySchema } from "../../../packages/ai/src/context";
-import type { EventProposal } from "../../../packages/ai/src/schema";
+import { EventProposalSchema, type EventProposal } from "../../../packages/ai/src/schema";
 import { proposeSupplierCommitment } from "../../../packages/ai/src/adapter";
 import { createConfiguredAIProvider, type ConfiguredAIProvider } from "../../../packages/ai/src/configured-provider";
 import { createPaddleOcrAdapter, type OcrDocument } from "./paddleocr";
@@ -30,7 +30,13 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
   const memoryStore = store instanceof (requireMemoryStore());
   const asyncCall = async <T>(fn: () => T | Promise<T>) => await fn();
   app.get("/api/health", (c) => c.json({ ok: true, storage: options.storageMode ?? (memoryStore ? "memory" : "postgres") }));
-  app.get("/api/purchase-orders", async (c) => c.json(await asyncCall(() => store.purchaseOrders())));
+  app.get("/api/purchase-orders", async (c) => {
+    const orders = await asyncCall(() => store.purchaseOrders());
+    return c.json(await Promise.all(orders.map(async (order) => ({
+      ...order,
+      poReference: (await asyncCall(() => store.purchaseOrderReference(order.entityId)))?.poNumber ?? order.entityId,
+    }))));
+  });
   app.get("/api/purchase-orders/:id", async (c) => { const state = await asyncCall(() => store.state(c.req.param("id"))); return state ? c.json(state) : c.json({ error: "Purchase order not found" }, 404); });
   app.get("/api/purchase-orders/:id/timeline", async (c) => c.json(await asyncCall(() => store.timeline(c.req.param("id")))));
   app.get("/api/exceptions", async (c) => c.json(await asyncCall(() => store.exceptions())));
@@ -81,7 +87,7 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
 
   app.post("/api/analysis/supplier-text", async (c) => {
     const raw = await readLimited(c.req.raw); if (raw === null) return c.json({ error: "Request body too large" }, 413);
-    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { text?: string; sourceRecordId?: string; entityId?: string | null; matchingPoCount?: number; poContext?: unknown; retry?: boolean }; } catch { return null; } })();
+    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { text?: string; sourceRecordId?: string; entityId?: string | null; poContext?: unknown; retry?: boolean }; } catch { return null; } })();
     if (!body?.text || body.text.length > MAX_BODY) return c.json({ error: "Expected text within size limit" }, 400);
     const parsedPoContext = body.poContext === undefined ? { success: true as const, data: [] as const } : PoContextArraySchema.safeParse(body.poContext);
     if (!parsedPoContext.success) return c.json({ error: "Invalid poContext" }, 400);
@@ -93,8 +99,14 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     const adapter = options.extractionAdapter ?? configuredProvider.extractionAdapter;
     if (!adapter) return c.json({ error: "No extraction provider configured" }, 503);
     const sourceRecordId = body.sourceRecordId ?? `text-${sha256(body.text)}`;
-    const context = { sourceRecordId, entityId: body.entityId, matchingPoCount: body.matchingPoCount };
-    const request = { input: poContext.length > 0 ? JSON.stringify({ message: body.text, context, poContext }) : JSON.stringify({ message: body.text, context }), mediaType: "text" as const, analysisType: "supplier_commitment_extraction", model, provider, promptVersion: process.env.AI_PROMPT_VERSION ?? "supplier-v2", schemaVersion: process.env.AI_SCHEMA_VERSION ?? "commitment-v1" };
+    const entityId = typeof body.entityId === "string" && body.entityId.trim() ? body.entityId.trim() : null;
+    const selectedOrder = entityId ? await asyncCall(() => store.state(entityId)) : undefined;
+    const selectedReference = entityId ? await asyncCall(() => store.purchaseOrderReference(entityId)) : undefined;
+    if (entityId && (!selectedOrder || !selectedReference)) return c.json({ error: "Selected purchase order was not found" }, 404);
+    const context = { sourceRecordId, entityId, matchingPoCount: entityId ? 1 : undefined };
+    const orderSnapshot = entityId ? { entityId, poReference: selectedReference!.poNumber, baselineEta: selectedOrder!.eta } : {};
+    const requestContext = { ...context, ...orderSnapshot };
+    const request = { input: poContext.length > 0 ? JSON.stringify({ message: body.text, context: requestContext, poContext }) : JSON.stringify({ message: body.text, context: requestContext }), mediaType: "text" as const, analysisType: "supplier_commitment_extraction", model, provider, promptVersion: process.env.AI_PROMPT_VERSION ?? "supplier-v2", schemaVersion: process.env.AI_SCHEMA_VERSION ?? "commitment-v1", context: requestContext };
     const failed = body.retry ? ((durable ? await durable.get(analysisCacheKey(request)) : cache.get(analysisCacheKey(request)))?.status === "failed") : false;
     const got = await runCachedAnalysis(request, cache as MemoryAnalysisCache<EventProposal>, { run: async () => {
       const proposal = await proposeSupplierCommitment(body.text!, context, adapter, { poContext });
@@ -103,6 +115,65 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
       return { result: proposal, usage, modelRequest: { provider, model, mediaType: "text" }, modelResponse: metadata?.response ?? undefined };
     } }, { durable: durable as DurableAnalysisCache<EventProposal> | undefined, retryFailed: failed });
     return c.json({ proposal: got.run.result, run: got.run, cacheHit: got.cacheHit, status: got.run.status, usage: got.cacheHit ? { inputTokens: 0, outputTokens: 0, totalTokens: 0 } : got.run.usage ?? null, runUsage: got.run.usage ?? null });
+  });
+
+  app.post("/api/analysis/runs/:key/approve", async (c) => {
+    const raw = await readLimited(c.req.raw);
+    if (raw === null) return c.json({ error: "Request body too large" }, 413);
+    let parsedBody: unknown;
+    try { parsedBody = JSON.parse(new TextDecoder().decode(raw)); }
+    catch { return c.json({ error: "Invalid JSON body" }, 400); }
+    if (typeof parsedBody !== "object" || parsedBody === null || Array.isArray(parsedBody)) return c.json({ error: "Expected an approval object" }, 400);
+    const etaInput = (parsedBody as { eta?: unknown }).eta;
+    if (etaInput !== undefined && typeof etaInput !== "string") return c.json({ error: "Delivery date must be a string" }, 400);
+    const run = durable
+      ? await durable.get(c.req.param("key"))
+      : (cache as MemoryAnalysisCache<unknown>).get(c.req.param("key"));
+    if (!run) return c.json({ error: "Analysis run not found" }, 404);
+    if (run.request.analysisType !== "supplier_commitment_extraction" || !["completed", "needs_review"].includes(run.status)) {
+      return c.json({ error: "This analysis cannot be approved" }, 409);
+    }
+    const parsedProposal = EventProposalSchema.safeParse(run.result);
+    if (!parsedProposal.success) return c.json({ error: "There is no valid supplier proposal to approve" }, 409);
+    const proposal = parsedProposal.data;
+    if (!proposal.commitment) return c.json({ error: "There is no extracted supplier update to approve" }, 409);
+    const commitment = proposal.commitment;
+    const context = run.request.context as Record<string, unknown> | undefined;
+    const entityId = typeof context?.entityId === "string" ? context.entityId : null;
+    const poReference = typeof context?.poReference === "string" ? context.poReference : null;
+    const baselineEta = typeof context?.baselineEta === "string" ? context.baselineEta : null;
+    if (!entityId || proposal.entityId !== entityId || proposal.sourceRecordId !== context?.sourceRecordId) {
+      return c.json({ error: "Select a purchase order and analyze the supplier message again before approving" }, 409);
+    }
+    if (["INVALID_SCHEMA", "UNKNOWN_PO", "AMBIGUOUS_PO", "DUPLICATE_SOURCE"].includes(proposal.state)) {
+      return c.json({ error: "This proposal needs more information before it can be approved", state: proposal.state }, 409);
+    }
+    if (commitment.poReference && poReference && normalizePoReference(commitment.poReference) !== normalizePoReference(poReference)) {
+      return c.json({ error: "The PO number in the message does not match the selected purchase order", extractedPoReference: commitment.poReference }, 409);
+    }
+    const eta = etaInput ?? commitment.eta;
+    if (!eta || !/^\d{4}-\d{2}-\d{2}$/.test(eta) || !Number.isFinite(Date.parse(`${eta}T00:00:00Z`)) || new Date(`${eta}T00:00:00Z`).toISOString().slice(0, 10) !== eta) {
+      return c.json({ error: "A valid revised delivery date is required" }, 400);
+    }
+    const current = await asyncCall(() => store.state(entityId));
+    const reference = await asyncCall(() => store.purchaseOrderReference(entityId));
+    if (!current || !reference) return c.json({ error: "Selected purchase order was not found" }, 404);
+    if (current.eta !== baselineEta) return c.json({ error: "The order changed after this message was analyzed. Analyze it again before approving.", currentEta: current.eta }, 409);
+    if (current.eta === eta) return c.json({ error: "The proposed date is already on this order" }, 409);
+    const result = await asyncCall(() => store.applyApprovedEtaChange({
+      entityId,
+      expectedEta: baselineEta,
+      eta,
+      // Until message dates can be entered, use the analysis time as the event time.
+      occurredAt: run.createdAt,
+      sourceRecordId: proposal.sourceRecordId,
+      sourceText: proposal.sourceText,
+    }));
+    if (result.status === "unknown_po") return c.json({ error: "Selected purchase order was not found" }, 404);
+    if (result.status === "stale") return c.json({ error: "The order changed before approval. Analyze the message again.", currentEta: result.currentEta }, 409);
+    if (result.status === "unchanged") return c.json({ error: "The proposed date is already on this order" }, 409);
+    const state = await asyncCall(() => store.state(entityId));
+    return c.json({ status: result.status, event: result.event, purchaseOrder: state }, result.status === "applied" ? 201 : 200);
   });
 
   const documentAnalysisHandler = async (c: Context) => {

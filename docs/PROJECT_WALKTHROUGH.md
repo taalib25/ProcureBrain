@@ -21,11 +21,11 @@ The split is grouped by whole message families:
 | --- | ---: | ---: | ---: |
 | Development | 180 | 18 | 50 |
 | Validation | 60 | 6 | 0 |
-| Holdout | 60 | 6 | 20 |
+| Holdout | 60 | 6 | 30 |
 
 Keeping entire families in one split helps check whether the extractor handles scenario patterns it did not see during development. The holdout set should be kept for a final check after prompt or code changes. The validation set currently contains only extractable examples, so it does not measure how well the system abstains on ambiguous messages.
 
-In the gold file, `expected: null` means the benchmark expects the system to stop and request human review. This differs from a valid, partial extraction: a message can have a missing PO number and still have extractable date or quantity fields.
+In the gold file, `expected: null` means the benchmark expects the system to stop and request human review. The scorer also treats an expected commitment with confidence below `0.7` as review-required because that is the application's review threshold. This differs from a valid, partial extraction: a message can have a missing PO number and still have extractable date or quantity fields.
 
 ### Local purchase-order context corpus
 
@@ -66,11 +66,17 @@ The CSV path is a separate, deterministic path. It normalizes rows into canonica
 
 ## 4. What the current evaluator measures
 
-`packages/ai/scripts/evaluate-dataset.ts` reads a JSON file of predictions, and `packages/ai/src/evaluate.ts` compares those predictions with the gold file. The evaluator **scores predictions that have already been produced; it does not call a model**.
+`apps/api/scripts/evaluate-supplier-extraction.ts` calls the configured provider once per example, builds reviewable proposals, and saves predictions plus run metadata under `.tmp/evaluations/`. `packages/ai/scripts/evaluate-dataset.ts` can also score an existing predictions JSON file without calling a model. `packages/ai/src/evaluate.ts` compares predictions with the gold file.
 
-It currently reports exact-match accuracy for four fields, split by development, validation, and holdout. Missing predictions count as incorrect field values. However, gold rows with `expected: null` are skipped for field accuracy. That means an extractor can return a confident commitment for an ambiguous holdout message without lowering the reported field scores. The current report also lacks an exact-record score and explicit false-accept / safe-abstention metrics.
+The report includes exact-match accuracy for each extracted field and for complete records. It separately reports the rate at which review-required rows receive a review proposal, and how often the system accepts one unsafely. A missing prediction is counted as unknown and incorrect; it is not counted as a successful human-review decision.
 
-So the project currently has **no defensible model-accuracy percentage**. A useful next evaluation should report field accuracy on extractable rows and, separately, how often the system correctly sends ambiguous rows to review. Even then, the result describes performance on this synthetic benchmark, not real supplier traffic.
+The first recorded holdout run is summarized in [the evaluation report](evaluations/2026-09-30-holdout.md). For a new run, the command is:
+
+```bash
+pnpm --filter @procurebrain/api evaluate:supplier-extraction -- --split=holdout
+```
+
+This makes one live provider request for each of the 60 holdout examples and may incur API charges. It records provider/model, prompt/schema versions, and reported token usage. This holdout has already been examined; use development and validation for changes and establish a new unseen evaluation set before making another final claim. Any score from this command describes this synthetic benchmark only, not real supplier traffic.
 
 ## 5. Suggested learning order
 
@@ -78,9 +84,9 @@ So the project currently has **no defensible model-accuracy percentage**. A usef
 2. Compare one message with its matching row in `data/gold/expected_extractions.jsonl`.
 3. Read `packages/ai/src/schema.ts` to understand the allowed model output.
 4. Follow `apps/api/src/app.ts` into `packages/ai/src/adapter.ts` to see validation and review-state assignment.
-5. Read `packages/ai/src/evaluate.ts` to see how predictions become scores, keeping the review-scoring limitation above in mind.
+5. Read `packages/ai/src/evaluate.ts` to see how field, exact-record, and review-routing scores are calculated.
 6. Read `packages/domain/src/reducer.ts` and `packages/domain/src/exceptions.ts` for the deterministic PO timeline and exception behavior.
 
 ## 6. What would make the accuracy claim stronger
 
-First make evaluation count incorrect acceptance of a review-required example as a safety failure. Keep holdout untouched while tuning. Then collect a properly labeled set of real or representative supplier messages, split it by supplier or source when possible, and evaluate the extraction and review decision separately. Report the dataset, split, model, prompt/schema version, and exact metrics alongside any score.
+Review the gold taxonomy against the prompt definitions using development data. The first holdout run also identified inconsistent business-type labels in `date-relative-only` and `quantity-unspecified`; see the [evaluation report](evaluations/2026-09-30-holdout.md). Keep the examined holdout untouched while tuning. Then collect a properly labeled set of real or representative supplier messages, split it by supplier or source when possible, and evaluate the extraction and review decision separately. Report the dataset, split, model, prompt/schema version, and exact metrics alongside any score.

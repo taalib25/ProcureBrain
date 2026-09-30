@@ -48,6 +48,7 @@ export function createConfiguredAIProvider(env: ConfiguredAIEnv = process.env): 
     let lastResponse: SafeProviderResponse | null = null;
     const extractionAdapter = {
       extract: async (message: string, poContext: readonly PoContextRecord[] = []) => {
+        lastResponse = null;
         const result = await adapter.extractWithResponse(message, poContext);
         lastResponse = { usage: safeUsage(result.usage), response: result.response };
         return result.output;

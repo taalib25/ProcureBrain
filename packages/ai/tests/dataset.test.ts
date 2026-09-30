@@ -49,7 +49,10 @@ describe("synthetic extraction dataset", () => {
     for (const row of gold) perfect[row.id] = row.expected === null ? null : { ...row.expected };
     const perfectMetrics = evaluateBySplit(gold, perfect);
     for (const metric of perfectMetrics) {
-      expect(metric.reviewRate).toBe((metric.reviewTotal - metric.fields.eta.total) / metric.examples);
+      const expectedReviews = gold.filter(row => row.split === metric.split && (
+        row.expected === null || row.reviewState !== undefined || row.expected.confidence < 0.7
+      )).length;
+      expect(metric.reviewRate).toBe(expectedReviews / metric.examples);
       for (const field of Object.values(metric.fields)) expect(field).toEqual({ correct: metric.fields.eta.total, total: metric.fields.eta.total, accuracy: 1 });
     }
 

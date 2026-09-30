@@ -6,6 +6,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc --outDir dist --noEmit false && mkdir -p dist/apps/api/migrations && cp migrations/*.sql dist/apps/api/migrations/ && cp -r document-ocr dist/apps/api/",
     "test": "vitest run",
+    "evaluate:supplier-extraction": "tsx scripts/evaluate-supplier-extraction.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -87,7 +87,7 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
 
   app.post("/api/analysis/supplier-text", async (c) => {
     const raw = await readLimited(c.req.raw); if (raw === null) return c.json({ error: "Request body too large" }, 413);
-    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { text?: string; sourceRecordId?: string; entityId?: string | null; poContext?: unknown; retry?: boolean }; } catch { return null; } })();
+    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { text?: string; sourceRecordId?: string; entityId?: string | null; matchingPoCount?: number; poContext?: unknown; retry?: boolean }; } catch { return null; } })();
     if (!body?.text || body.text.length > MAX_BODY) return c.json({ error: "Expected text within size limit" }, 400);
     const parsedPoContext = body.poContext === undefined ? { success: true as const, data: [] as const } : PoContextArraySchema.safeParse(body.poContext);
     if (!parsedPoContext.success) return c.json({ error: "Invalid poContext" }, 400);
@@ -103,7 +103,9 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     const selectedOrder = entityId ? await asyncCall(() => store.state(entityId)) : undefined;
     const selectedReference = entityId ? await asyncCall(() => store.purchaseOrderReference(entityId)) : undefined;
     if (entityId && (!selectedOrder || !selectedReference)) return c.json({ error: "Selected purchase order was not found" }, 404);
-    const context = { sourceRecordId, entityId, matchingPoCount: entityId ? 1 : undefined };
+    // Keep an absent PO selection distinct from an explicit null: free-text analysis
+    // can still return a proposal, while the approval endpoint requires a selected PO.
+    const context = { sourceRecordId, ...(entityId ? { entityId } : {}), matchingPoCount: entityId ? 1 : body.matchingPoCount };
     const orderSnapshot = entityId ? { entityId, poReference: selectedReference!.poNumber, baselineEta: selectedOrder!.eta } : {};
     const requestContext = { ...context, ...orderSnapshot };
     const request = { input: poContext.length > 0 ? JSON.stringify({ message: body.text, context: requestContext, poContext }) : JSON.stringify({ message: body.text, context: requestContext }), mediaType: "text" as const, analysisType: "supplier_commitment_extraction", model, provider, promptVersion: process.env.AI_PROMPT_VERSION ?? "supplier-v2", schemaVersion: process.env.AI_SCHEMA_VERSION ?? "commitment-v1", context: requestContext };

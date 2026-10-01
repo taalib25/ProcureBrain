@@ -111,6 +111,7 @@ Copy `.env.example` for local configuration. Never commit `.env`, API keys, data
 - [First supplier extraction evaluation](docs/evaluations/2026-09-30-holdout.md)
 - [Review against claude.dev best practices](docs/BEST_PRACTICES_REVIEW.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Deep API-first development plan](docs/DEVELOPMENT_PLAN.md)
 - [Event contract](docs/EVENT_CONTRACT.md)
 - [Design decisions](docs/DECISIONS.md)
 - [AI extraction and dataset notes](packages/ai/README.md)

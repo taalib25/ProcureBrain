@@ -49,7 +49,7 @@ flowchart LR
 - The target problem is still a hypothesis. There is no recorded feedback from small-business owners confirming how often this problem occurs or what outcome they would value most.
 - Automatic email or messaging capture is not implemented; supplier text must be pasted and the PO selected by a person.
 - Uploaded document results cannot yet be edited and approved into a PO event.
-- Approval records the analysis time as the event time. The interface does not yet capture the original supplier-message timestamp.
+- Approval records approval time, ordered after existing PO events when necessary. The interface does not yet capture the original supplier-message timestamp.
 - The benchmark is synthetic, small, and has known label inconsistencies. Real-world extraction and review safety are unknown.
 - This is not a production-ready service. Validate privacy, access control, deployment, and operational recovery before handling live business or supplier records.
 
@@ -63,7 +63,7 @@ Show the short demo to three small-business owners who personally place or track
 
 ### 2. Make one demo path dependable
 
-Demonstrate: import a PO with its original ETA → paste a supplier message → review the new date, delay, and source → approve → see the new ETA in the PO timeline. The current code has been updated to use the original PO ETA as the comparison baseline. The latest code passed TypeScript typechecking; this turn did not rerun the test suite or verify this workflow in the browser.
+Demonstrate: import a PO with its original ETA → paste a supplier message → review the new date, delay, and source → approve → see the new ETA in the PO timeline. The approval path checks the current ETA and the complete PO event revision. The October 1 review added regression coverage for stale drafts, concurrent approvals, immutable evidence, malformed requests, and impossible dates. See [the review record](BEST_PRACTICES_REVIEW.md).
 
 ### 3. Evaluate with better labels and representative data
 

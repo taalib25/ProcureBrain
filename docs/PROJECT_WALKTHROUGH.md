@@ -27,6 +27,8 @@ Keeping entire families in one split helps check whether the extractor handles s
 
 In the gold file, `expected: null` means the benchmark expects the system to stop and request human review. The scorer also treats an expected commitment with confidence below `0.7` as review-required because that is the application's review threshold. This differs from a valid, partial extraction: a message can have a missing PO number and still have extractable date or quantity fields.
 
+This confidence-derived rule is retained to reproduce the historical benchmark. Future labels can set `reviewRequired` explicitly, based on a human decision. The October 1 audit makes all examples and known label issues visible: run `pnpm --filter @procurebrain/ai audit:dataset` and open `.tmp/evaluations/dataset-review.html`. New scoring separates adapter failures, invalid predictions, and missing answers from valid review decisions.
+
 ### Local purchase-order context corpus
 
 Files under `data/datasets/` are local and Git-ignored. The processed corpus contains 2,777 records: 2,000 from a supply-chain dataset and 777 from a procurement-KPI dataset. They provide example PO facts that can be passed as `poContext` to extraction.
@@ -63,7 +65,7 @@ Web form
   → PO reducer and exception queue update
 ```
 
-The provider returns a proposed commitment. Zod checks that its shape is valid: dates use `YYYY-MM-DD`, quantities are nonnegative numbers or `null`, and the business type is one of the allowed values. `proposeSupplierCommitment` then assigns a workflow review state. The extraction endpoint only returns a proposal. When the owner selects the correct PO and approves an ETA, the separate approval endpoint checks the analysis run, confirms the extracted PO reference matches, confirms the ETA is still based on the current PO state, stores the original supplier text, and records a canonical ETA event. The owner can edit the proposed ETA before approving. The event time currently uses analysis-run creation time because the UI does not collect when the supplier sent the message.
+The provider returns a proposed commitment. Zod checks that its shape is valid: dates use `YYYY-MM-DD`, quantities are nonnegative numbers or `null`, and the business type is one of the allowed values. `proposeSupplierCommitment` then assigns a workflow review state. The extraction endpoint only returns a proposal. When the owner selects the correct PO and approves an ETA, the separate approval endpoint checks the analysis run, confirms the extracted PO reference matches, atomically confirms the entire PO event revision still matches the analyzed state, stores the original supplier text, and records a canonical ETA event. The owner can edit the proposed ETA before approving. The event uses approval time, ordered after existing events if imported timestamps are in the future. The supplier's original send time is not collected. Retrying the same approval returns the saved event. Reusing a source ID with different content returns a conflict.
 
 This approval flow is currently for pasted supplier text and ETA changes. Uploaded document analysis returns a result for inspection; it does not yet create an event. Automatic email and messaging connections are not implemented.
 

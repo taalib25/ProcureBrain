@@ -1,17 +1,19 @@
 import type { DatasetGold } from "./dataset";
-import type { SupplierCommitment } from "./schema";
+import { SupplierCommitmentSchema, reviewStates, type SupplierCommitment } from "./schema";
 
 export type Prediction = SupplierCommitment | null | {
-  readonly expected?: SupplierCommitment | null;
   readonly commitment?: SupplierCommitment | null;
   readonly reviewState?: string;
   readonly state?: string;
+  readonly failure?: string;
 };
 export interface FieldMetric { readonly correct: number; readonly total: number; readonly accuracy: number }
 export interface SplitEvaluation {
   readonly split: string;
   readonly examples: number;
   readonly missingPredictionCount: number;
+  readonly invalidPredictionCount: number;
+  readonly executionFailureCount: number;
   readonly reviewRate: number;
   readonly reviewCount: number;
   readonly reviewTotal: number;
@@ -20,6 +22,8 @@ export interface SplitEvaluation {
   readonly reviewRecall: number;
   readonly unsafeAcceptCount: number;
   readonly unsafeAcceptRate: number;
+  readonly falseReviewCount: number;
+  readonly falseReviewRate: number;
   readonly exactMatch: FieldMetric;
   readonly fields: Readonly<Record<"poReference" | "eta" | "quantity" | "type", FieldMetric>>;
 }
@@ -37,28 +41,34 @@ export function evaluateBySplit(gold: readonly DatasetGold[], predictions: Reado
     let unsafeAcceptCount = 0;
     let exactMatchCount = 0;
     let missingPredictionCount = 0;
+    let invalidPredictionCount = 0;
+    let executionFailureCount = 0;
+    let falseReviewCount = 0;
     for (const row of rows) {
       const raw = predictions[row.id];
-      const pred = normalize(raw);
+      const prediction = readPrediction(raw);
+      const pred = prediction.commitment;
       const missing = raw === undefined;
-      const isReview = needsReview(raw, pred);
-      const goldNeedsReview = row.expected === null || row.reviewState !== undefined || (row.expected?.confidence ?? 1) < 0.7;
+      const isReview = prediction.review;
+      const goldNeedsReview = goldRequiresReview(row);
       if (isReview) reviewCount++;
       if (missing) missingPredictionCount++;
+      if (prediction.failure) executionFailureCount++;
+      else if (!missing && !prediction.valid) invalidPredictionCount++;
       if (goldNeedsReview) {
         reviewTotal++;
-        if (!missing && isReview) correctlyReviewed++;
-        if (!missing && !isReview) unsafeAcceptCount++;
-      }
+        if (prediction.valid && isReview) correctlyReviewed++;
+        if (prediction.valid && !isReview) unsafeAcceptCount++;
+      } else if (prediction.valid && isReview) falseReviewCount++;
 
       if (row.expected === null) {
-        if (!missing && isReview) exactMatchCount++;
+        if (prediction.valid && isReview) exactMatchCount++;
         continue;
       }
-      let rowMatches = pred !== null;
+      let rowMatches = prediction.valid && pred !== null;
       for (const field of scoreFields) {
         counts[field].total++;
-        const matches = pred !== null && pred[field] === row.expected[field];
+        const matches = prediction.valid && pred !== null && pred[field] === row.expected[field];
         if (matches) counts[field].correct++;
         else rowMatches = false;
       }
@@ -68,6 +78,8 @@ export function evaluateBySplit(gold: readonly DatasetGold[], predictions: Reado
     return {
       split, examples: rows.length, reviewRate: rows.length ? reviewCount / rows.length : 0,
       reviewCount, reviewTotal: rows.length, goldReviewTotal: reviewTotal, missingPredictionCount, correctlyReviewed,
+      invalidPredictionCount, executionFailureCount, falseReviewCount,
+      falseReviewRate: rows.length > reviewTotal ? falseReviewCount / (rows.length - reviewTotal) : 0,
       reviewRecall: reviewTotal ? correctlyReviewed / reviewTotal : 0,
       unsafeAcceptCount,
       unsafeAcceptRate: reviewTotal ? unsafeAcceptCount / reviewTotal : 0,
@@ -80,16 +92,25 @@ export function evaluateBySplit(gold: readonly DatasetGold[], predictions: Reado
   });
 }
 
-function normalize(value: Prediction | undefined): SupplierCommitment | null {
-  if (value === undefined || value === null) return null;
-  if ("poReference" in value) return value as SupplierCommitment;
-  if ("expected" in value) return value.expected ?? null;
-  return value.commitment ?? null;
+export function goldRequiresReview(row: DatasetGold): boolean {
+  // Legacy confidence-derived labels remain supported to reproduce the frozen v1 report.
+  // New benchmarks should make the expected review decision explicit.
+  return row.expected === null || row.reviewState !== undefined || (row.reviewRequired ?? ((row.expected?.confidence ?? 1) < 0.7));
 }
 
-function needsReview(value: Prediction | undefined, commitment: SupplierCommitment | null): boolean {
-  if (value === undefined || value === null || commitment === null) return true;
-  if ("poReference" in value) return value.confidence < 0.7;
-  const state = value.reviewState ?? value.state;
-  return state === undefined ? commitment.confidence < 0.7 : state !== "VALID";
+function readPrediction(value: Prediction | undefined): { commitment: SupplierCommitment | null; review: boolean; valid: boolean; failure: boolean } {
+  const invalid = { commitment: null, review: true, valid: false, failure: false };
+  if (value === undefined) return invalid;
+  if (value === null) return { ...invalid, valid: true };
+  if (typeof value !== "object" || Array.isArray(value)) return invalid;
+  if (!("poReference" in value) && value.failure) return { ...invalid, failure: true };
+  const direct = "poReference" in value;
+  if (!direct && (Object.keys(value).some(key => !["commitment", "state", "reviewState", "failure"].includes(key)) || !("commitment" in value))) return invalid;
+  const state = direct ? undefined : value.reviewState ?? value.state;
+  if (state !== undefined && !reviewStates.includes(state as typeof reviewStates[number])) return invalid;
+  const raw = direct ? value : value.commitment;
+  if (raw === null) return state === "VALID" ? invalid : { ...invalid, valid: true };
+  const parsed = SupplierCommitmentSchema.safeParse(raw);
+  if (!parsed.success) return invalid;
+  return { commitment: parsed.data, review: state === undefined ? parsed.data.confidence < 0.7 : state !== "VALID", valid: true, failure: false };
 }

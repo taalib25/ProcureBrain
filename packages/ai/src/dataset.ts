@@ -2,7 +2,7 @@ import type { SupplierCommitment } from "./schema";
 
 export type DatasetSplit = "development" | "validation" | "holdout";
 export interface DatasetMessage { readonly id: string; readonly message: string; readonly templateFamily: string; readonly split: DatasetSplit }
-export interface DatasetGold { readonly id: string; readonly expected: SupplierCommitment | null; readonly reviewState?: string; readonly templateFamily: string; readonly split: DatasetSplit }
+export interface DatasetGold { readonly id: string; readonly expected: SupplierCommitment | null; readonly reviewState?: string; readonly reviewRequired?: boolean; readonly templateFamily: string; readonly split: DatasetSplit }
 
 const families = [
   "commit-confirm-direct", "commit-confirm-forwarded", "eta-iso-direct", "eta-iso-forwarded", "quantity-reduction-direct", "quantity-reduction-forwarded",

@@ -2,6 +2,7 @@ import { config as loadDotEnv } from "dotenv";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import { createConfiguredAIProvider } from "../../../packages/ai/src/configured-provider.ts";
 import { proposeSupplierCommitment } from "../../../packages/ai/src/adapter.ts";
 import { evaluateBySplit, type Prediction } from "../../../packages/ai/src/evaluate.ts";
@@ -10,7 +11,7 @@ import type { DatasetGold, DatasetMessage, DatasetSplit } from "../../../package
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../..");
 loadDotEnv({ path: resolve(root, ".env") });
 const args = process.argv.slice(2);
-const splitArg = args.find(argument => argument.startsWith("--split="))?.slice("--split=".length) ?? "holdout";
+const splitArg = args.find(argument => argument.startsWith("--split="))?.slice("--split=".length) ?? "development";
 const outputArg = args.find(argument => argument.startsWith("--out="))?.slice("--out=".length);
 const allowedSplits: readonly DatasetSplit[] = ["development", "validation", "holdout"];
 
@@ -19,8 +20,10 @@ if (!allowedSplits.includes(splitArg as DatasetSplit)) {
 }
 
 const split = splitArg as DatasetSplit;
-const messages = parseJsonl<DatasetMessage>(await readFile(resolve(root, "data/generated/supplier_messages.jsonl"), "utf8"));
-const gold = parseJsonl<DatasetGold>(await readFile(resolve(root, "data/gold/expected_extractions.jsonl"), "utf8"));
+const messageContents = await readFile(resolve(root, "data/generated/supplier_messages.jsonl"), "utf8");
+const goldContents = await readFile(resolve(root, "data/gold/expected_extractions.jsonl"), "utf8");
+const messages = parseJsonl<DatasetMessage>(messageContents);
+const gold = parseJsonl<DatasetGold>(goldContents);
 const selectedMessages = messages.filter(row => row.split === split);
 const selectedGold = gold.filter(row => row.split === split);
 const provider = createConfiguredAIProvider();
@@ -42,7 +45,7 @@ for (const [index, row] of selectedMessages.entries()) {
     { sourceRecordId: row.id },
     adapter,
   );
-  predictions[row.id] = { commitment: proposal.commitment, state: proposal.state };
+  predictions[row.id] = { commitment: proposal.commitment, state: proposal.state, ...(proposal.reason === "Extraction adapter failed" ? { failure: "extraction_adapter_failed" } : {}) };
   reviewStates[proposal.state] = (reviewStates[proposal.state] ?? 0) + 1;
   if (proposal.reason === "Extraction adapter failed") adapterFailures++;
 
@@ -67,6 +70,8 @@ const report = {
   model: provider.model,
   promptVersion: process.env.AI_PROMPT_VERSION ?? "supplier-v2",
   schemaVersion: process.env.AI_SCHEMA_VERSION ?? "commitment-v1",
+  scorerVersion: "v2-failure-aware",
+  datasetSha256: createHash("sha256").update(messageContents).update(goldContents).digest("hex"),
   split,
   examples: selectedMessages.length,
   reviewStates,

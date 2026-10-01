@@ -26,7 +26,7 @@ The useful question it should answer is: **“Which PO needs me, and what change
 6. Paste supplier text, select a PO, and get a structured AI proposal beside the current ETA.
 7. Review the original message, edit the proposed date if needed, and approve it to add an ETA event to that PO's timeline.
 
-The approved pasted-text path now connects to the PO timeline. It still requires a person to select the PO and approve the proposed ETA. Uploaded document analysis has no approve-and-apply step yet. There is no automatic email or messaging connection, and the saved event time currently represents when the message was analyzed, not the supplier's original send time. State these limits when presenting it.
+The approved pasted-text path now connects to the PO timeline. It still requires a person to select the PO and approve the proposed ETA. Uploaded document analysis has no approve-and-apply step yet. There is no automatic email or messaging connection, and the saved event time currently represents approval time, ordered after existing PO events when necessary. The supplier's original send time is not collected. State these limits when presenting it.
 
 ## The clearest 15-second demo
 

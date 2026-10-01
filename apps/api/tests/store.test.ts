@@ -23,6 +23,7 @@ describe("PostgresStore event mapping", () => {
     const client = {
       query: async (sql: string, values?: unknown[]) => {
         queries.push({ sql, values });
+        if (sql.startsWith("select content")) return { rowCount: 1, rows: [{ content: csv, sourceType: "purchase_orders" }] };
         return { rowCount: sql.includes("insert into canonical_events") ? 1 : 0, rows: [] };
       },
       release: () => undefined,

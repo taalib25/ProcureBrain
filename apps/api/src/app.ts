@@ -10,7 +10,8 @@ import { EventProposalSchema, type EventProposal } from "../../../packages/ai/sr
 import { proposeSupplierCommitment } from "../../../packages/ai/src/adapter";
 import { createConfiguredAIProvider, type ConfiguredAIProvider } from "../../../packages/ai/src/configured-provider";
 import { createPaddleOcrAdapter, type OcrDocument } from "./paddleocr";
-import type { MemoryStore, PostgresStore } from "./store";
+import { purchaseOrderRevision, SourceRecordConflictError, type MemoryStore, type PostgresStore } from "./store";
+import { ApprovalRequestSchema, CsvAnalysisRequestSchema, ImportRequestSchema, SupplierTextRequestSchema } from "./requests";
 
 const MAX_BODY = 5 * 1024 * 1024;
 type ApiStore = MemoryStore | PostgresStore;
@@ -22,6 +23,9 @@ interface AppOptions { cache?: MemoryAnalysisCache<unknown>; durableCache?: Dura
 
 export function createApp(store: ApiStore = new (requireMemoryStore())(), options: AppOptions = {}) {
   const app = new Hono();
+  app.onError((error, c) => error instanceof SourceRecordConflictError
+    ? c.json({ error: error.message, sourceRecordId: error.sourceRecordId }, 409)
+    : c.json({ error: "The request could not be completed" }, 500));
   const cache = options.cache ?? new MemoryAnalysisCache<unknown>();
   const durable = options.durableCache;
   const documentOcr = options.ocrAdapter ?? createPaddleOcrAdapter();
@@ -55,8 +59,11 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     }
     const raw = await readLimited(c.req.raw);
     if (raw === null) return c.json({ error: "Request body too large" }, 413);
-    let body: { csv?: string; sourceRecordId?: string; rows?: Array<{ row: number; values: Record<string, string> }> };
-    try { body = JSON.parse(new TextDecoder().decode(raw)); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+    let input: unknown;
+    try { input = JSON.parse(new TextDecoder().decode(raw)); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+    const parsedBody = ImportRequestSchema.safeParse(input);
+    if (!parsedBody.success) return c.json({ error: "Invalid import request" }, 400);
+    const body = parsedBody.data;
     if (body.csv) return c.json(await store.importCsv(body.csv, body.sourceRecordId ?? explicitId ?? `source-${sha256(`${sourceType}\n${body.csv}`)}`, sourceType));
     if (body.rows) return c.json(await store.importRows(body.rows, body.sourceRecordId ?? explicitId ?? `source-${sha256(`${sourceType}\n${JSON.stringify(body.rows)}`)}`, sourceType));
     return c.json({ error: "Expected csv or rows" }, 400);
@@ -75,8 +82,11 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
 
   app.post("/api/analysis/csv", async (c) => {
     const raw = await readLimited(c.req.raw); if (raw === null) return c.json({ error: "Request body too large" }, 413);
-    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { csv?: string; sourceRecordId?: string; purchaseOrders?: PurchaseOrderReference[]; retry?: boolean }; } catch { return null; } })();
-    if (!body?.csv) return c.json({ error: "Expected csv" }, 400);
+    let input: unknown;
+    try { input = JSON.parse(new TextDecoder().decode(raw)); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+    const parsedBody = CsvAnalysisRequestSchema.safeParse(input);
+    if (!parsedBody.success) return c.json({ error: "Invalid CSV analysis request" }, 400);
+    const body = parsedBody.data;
     if (new TextEncoder().encode(body.csv).byteLength > MAX_BODY) return c.json({ error: "Request body too large" }, 413);
     const id = body.sourceRecordId ?? "analysis-csv";
     const refs = body.purchaseOrders ?? [];
@@ -87,8 +97,11 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
 
   app.post("/api/analysis/supplier-text", async (c) => {
     const raw = await readLimited(c.req.raw); if (raw === null) return c.json({ error: "Request body too large" }, 413);
-    const body = (() => { try { return JSON.parse(new TextDecoder().decode(raw)) as { text?: string; sourceRecordId?: string; entityId?: string | null; matchingPoCount?: number; poContext?: unknown; retry?: boolean }; } catch { return null; } })();
-    if (!body?.text || body.text.length > MAX_BODY) return c.json({ error: "Expected text within size limit" }, 400);
+    let input: unknown;
+    try { input = JSON.parse(new TextDecoder().decode(raw)); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+    const parsedBody = SupplierTextRequestSchema.safeParse(input);
+    if (!parsedBody.success) return c.json({ error: "Invalid supplier message request" }, 400);
+    const body = parsedBody.data;
     const parsedPoContext = body.poContext === undefined ? { success: true as const, data: [] as const } : PoContextArraySchema.safeParse(body.poContext);
     if (!parsedPoContext.success) return c.json({ error: "Invalid poContext" }, 400);
     const poContext = parsedPoContext.success ? [...parsedPoContext.data] : [];
@@ -106,7 +119,7 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     // Keep an absent PO selection distinct from an explicit null: free-text analysis
     // can still return a proposal, while the approval endpoint requires a selected PO.
     const context = { sourceRecordId, ...(entityId ? { entityId } : {}), matchingPoCount: entityId ? 1 : body.matchingPoCount };
-    const orderSnapshot = entityId ? { entityId, poReference: selectedReference!.poNumber, baselineEta: selectedOrder!.eta } : {};
+    const orderSnapshot = entityId ? { entityId, poReference: selectedReference!.poNumber, baselineEta: selectedOrder!.eta, baselineRevision: purchaseOrderRevision(selectedOrder!) } : {};
     const requestContext = { ...context, ...orderSnapshot };
     const request = { input: poContext.length > 0 ? JSON.stringify({ message: body.text, context: requestContext, poContext }) : JSON.stringify({ message: body.text, context: requestContext }), mediaType: "text" as const, analysisType: "supplier_commitment_extraction", model, provider, promptVersion: process.env.AI_PROMPT_VERSION ?? "supplier-v2", schemaVersion: process.env.AI_SCHEMA_VERSION ?? "commitment-v1", context: requestContext };
     const failed = body.retry ? ((durable ? await durable.get(analysisCacheKey(request)) : cache.get(analysisCacheKey(request)))?.status === "failed") : false;
@@ -125,9 +138,9 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     let parsedBody: unknown;
     try { parsedBody = JSON.parse(new TextDecoder().decode(raw)); }
     catch { return c.json({ error: "Invalid JSON body" }, 400); }
-    if (typeof parsedBody !== "object" || parsedBody === null || Array.isArray(parsedBody)) return c.json({ error: "Expected an approval object" }, 400);
-    const etaInput = (parsedBody as { eta?: unknown }).eta;
-    if (etaInput !== undefined && typeof etaInput !== "string") return c.json({ error: "Delivery date must be a string" }, 400);
+    const parsedApproval = ApprovalRequestSchema.safeParse(parsedBody);
+    if (!parsedApproval.success) return c.json({ error: "Invalid approval request" }, 400);
+    const etaInput = parsedApproval.data.eta;
     const run = durable
       ? await durable.get(c.req.param("key"))
       : (cache as MemoryAnalysisCache<unknown>).get(c.req.param("key"));
@@ -144,7 +157,8 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     const entityId = typeof context?.entityId === "string" ? context.entityId : null;
     const poReference = typeof context?.poReference === "string" ? context.poReference : null;
     const baselineEta = typeof context?.baselineEta === "string" ? context.baselineEta : null;
-    if (!entityId || proposal.entityId !== entityId || proposal.sourceRecordId !== context?.sourceRecordId) {
+    const baselineRevision = typeof context?.baselineRevision === "string" ? context.baselineRevision : null;
+    if (!entityId || !baselineRevision || proposal.entityId !== entityId || proposal.sourceRecordId !== context?.sourceRecordId) {
       return c.json({ error: "Select a purchase order and analyze the supplier message again before approving" }, 409);
     }
     if (["INVALID_SCHEMA", "UNKNOWN_PO", "AMBIGUOUS_PO", "DUPLICATE_SOURCE"].includes(proposal.state)) {
@@ -160,14 +174,13 @@ export function createApp(store: ApiStore = new (requireMemoryStore())(), option
     const current = await asyncCall(() => store.state(entityId));
     const reference = await asyncCall(() => store.purchaseOrderReference(entityId));
     if (!current || !reference) return c.json({ error: "Selected purchase order was not found" }, 404);
-    if (current.eta !== baselineEta) return c.json({ error: "The order changed after this message was analyzed. Analyze it again before approving.", currentEta: current.eta }, 409);
-    if (current.eta === eta) return c.json({ error: "The proposed date is already on this order" }, 409);
     const result = await asyncCall(() => store.applyApprovedEtaChange({
       entityId,
       expectedEta: baselineEta,
+      expectedRevision: baselineRevision,
+      approvalId: run.cacheKey,
       eta,
-      // Until message dates can be entered, use the analysis time as the event time.
-      occurredAt: run.createdAt,
+      approvedAt: new Date().toISOString(),
       sourceRecordId: proposal.sourceRecordId,
       sourceText: proposal.sourceText,
     }));

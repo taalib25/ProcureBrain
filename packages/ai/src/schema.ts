@@ -13,9 +13,14 @@ export const reviewStates = [
 ] as const;
 
 /** The only extraction shape accepted at the AI boundary. */
+export const IsoCalendarDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "ETA must be an ISO calendar date").refine(value => {
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value;
+}, "ETA must be a real calendar date");
+
 export const SupplierCommitmentSchema = z.object({
   poReference: z.string().trim().min(1).nullable(),
-  eta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "ETA must be an ISO calendar date").nullable(),
+  eta: IsoCalendarDateSchema.nullable(),
   quantity: z.number().finite().nonnegative().nullable(),
   type: z.enum(commitmentTypes),
   confidence: z.number().finite().min(0).max(1),

@@ -80,13 +80,18 @@ pnpm build
 Provider tests use mocked responses and do not require API credentials.
 
 To run the synthetic supplier-message benchmark against the configured live
-provider, use `pnpm --filter @procurebrain/api evaluate:supplier-extraction -- --split=holdout`.
+provider during development, use `pnpm --filter @procurebrain/api evaluate:supplier-extraction -- --split=development`.
 This sends one provider request per example in the selected split and may incur
 API charges. Predictions and a metadata report are saved under `.tmp/`.
 
+To inspect the synthetic messages and labels without model calls, run
+`pnpm --filter @procurebrain/ai audit:dataset` and open
+`.tmp/evaluations/dataset-review.html`. The examined historical holdout should
+not be reused to tune the prompt or establish a new final accuracy result.
+
 ## Current validation and known gaps
 
-- The last recorded project verification (September 25, 2026) reports 75 passing Vitest tests, with typecheck and build passing. PostgreSQL persistence and duplicate-request concurrency were also checked at that time.
+- The October 1 review passed 102 tests, including approval checks against real PostgreSQL, plus type checking, the production build, and browser import/refresh checks. See the [review record](docs/BEST_PRACTICES_REVIEW.md) for scope and remaining gaps.
 - A September 30, 2026 OpenRouter holdout run exactly matched 27/60 complete synthetic examples (45%). Field matches were 92.5% for PO reference, 97.5% for ETA, 92.5% for quantity, and 47.5% for business type. It sent only 13/30 gold review-required cases to review. These are synthetic-label match rates; two scenario families have type labels that conflict with the prompt taxonomy. See the [full evaluation notes](docs/evaluations/2026-09-30-holdout.md).
 - A three-document OCR smoke check reported a mean reference-word recall proxy of 0.9737. This is a small text-overlap check, not a general OCR score or supplier-extraction accuracy measurement.
 - The OCR-to-PO context matching and as-of-message-time context flow is documented as future work.
@@ -104,6 +109,7 @@ Copy `.env.example` for local configuration. Never commit `.env`, API keys, data
 - [Product story and demo script](docs/PRODUCT_STORY.md)
 - [Dataset and code walkthrough](docs/PROJECT_WALKTHROUGH.md)
 - [First supplier extraction evaluation](docs/evaluations/2026-09-30-holdout.md)
+- [Review against claude.dev best practices](docs/BEST_PRACTICES_REVIEW.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Event contract](docs/EVENT_CONTRACT.md)
 - [Design decisions](docs/DECISIONS.md)

@@ -4,17 +4,33 @@ import type { PurchaseOrderState } from "../../../packages/domain/src/purchase-o
 import { sortExceptions } from "../../../packages/domain/src/priority";
 import type { Event } from "../../../packages/domain/src/events";
 import { normalizeCsv, normalizePurchaseOrdersCsv, normalizeRows, type InputRow, type NormalizationResult, type PurchaseOrderReference } from "../../../packages/ingestion/src";
-import { canonicalEventId, idempotencyKey } from "../../../packages/ingestion/src/idempotency";
-import type { Pool } from "pg";
+import { idempotencyKey } from "../../../packages/ingestion/src/idempotency";
+import { createHash } from "node:crypto";
+import type { Pool, PoolClient } from "pg";
 
 export interface ImportResult { sourceRecordId: string; inserted: number; events: readonly Event[]; unresolved: readonly unknown[]; rejected: readonly unknown[] }
 export interface ApprovedEtaChange {
   entityId: string;
   expectedEta: string | null;
+  expectedRevision: string;
+  approvalId: string;
   eta: string;
-  occurredAt: string;
+  approvedAt: string;
   sourceRecordId: string;
   sourceText: string;
+}
+export class SourceRecordConflictError extends Error {
+  constructor(readonly sourceRecordId: string) {
+    super("This source ID already belongs to different evidence. Use a new source ID.");
+  }
+}
+
+export function purchaseOrderRevision(state: PurchaseOrderState): string {
+  return createHash("sha256").update(JSON.stringify(state.appliedEventIds)).digest("hex");
+}
+
+function assertSourceIdentity(record: { content: string; sourceType: string } | undefined, content: string, sourceType: string, id: string): void {
+  if (record && (record.content !== content || record.sourceType !== sourceType)) throw new SourceRecordConflictError(id);
 }
 export type ApplyEtaResult =
   | { status: "applied"; event: Event }
@@ -53,6 +69,7 @@ export class MemoryStore {
   }
 
   private add(events: readonly Event[], sourceRecordId: string, unresolved: readonly unknown[], rejected: readonly unknown[], content: string, sourceType: string): ImportResult {
+    assertSourceIdentity(this.sourceRecords.get(sourceRecordId), content, sourceType, sourceRecordId);
     if (!this.sourceRecords.has(sourceRecordId)) this.sourceRecords.set(sourceRecordId, { id: sourceRecordId, content, sourceType, importedAt: new Date().toISOString() });
     const ids = new Set(this.events.map((event) => event.id));
     const fresh = events.filter((event) => !ids.has(event.id));
@@ -72,11 +89,12 @@ export class MemoryStore {
   applyApprovedEtaChange(input: ApprovedEtaChange): ApplyEtaResult {
     const current = this.state(input.entityId);
     if (!current || !this.purchaseOrderReference(input.entityId)) return { status: "unknown_po" };
-    if (current.eta !== input.expectedEta) return { status: "stale", currentEta: current.eta };
-    if (current.eta === input.eta) return { status: "unchanged" };
-    const event = approvedEtaEvent(input, current.eta);
-    const existing = this.events.find((item) => item.id === event.id);
+    const existing = this.events.find((item) => item.id === approvedEtaEventId(input));
     if (existing) return { status: "already_applied", event: existing };
+    if (current.eta !== input.expectedEta || purchaseOrderRevision(current) !== input.expectedRevision) return { status: "stale", currentEta: current.eta };
+    if (current.eta === input.eta) return { status: "unchanged" };
+    assertSourceIdentity(this.sourceRecords.get(input.sourceRecordId), input.sourceText, "supplier_message", input.sourceRecordId);
+    const event = approvedEtaEvent(input, current);
     if (!this.sourceRecords.has(input.sourceRecordId)) this.sourceRecords.set(input.sourceRecordId, {
       id: input.sourceRecordId,
       content: input.sourceText,
@@ -122,7 +140,8 @@ export class PostgresStore {
     const client = await this.pool.connect();
     try {
       await client.query("begin");
-      await client.query("insert into source_records(id,source_type,content,metadata,imported_at) values($1,$2,$3,$4,now()) on conflict(id) do nothing", [id, sourceType, content, { rowCount: events.length }]);
+      await lockPurchaseOrders(client, events.map(event => event.entityId));
+      await persistSourceRecord(client, id, content, sourceType, { rowCount: events.length });
       let inserted = 0;
       const newlyInserted: Event[] = [];
       for (const event of events) {
@@ -151,18 +170,24 @@ export class PostgresStore {
     return row ? { entityId: String(row.entity_id), poNumber: String(row.po_number) } : undefined;
   }
   async applyApprovedEtaChange(input: ApprovedEtaChange): Promise<ApplyEtaResult> {
-    const current = await this.state(input.entityId);
-    if (!current || !await this.purchaseOrderReference(input.entityId)) return { status: "unknown_po" };
-    if (current.eta !== input.expectedEta) return { status: "stale", currentEta: current.eta };
-    if (current.eta === input.eta) return { status: "unchanged" };
-    const event = approvedEtaEvent(input, current.eta);
     const client = await this.pool.connect();
     try {
       await client.query("begin");
-      await client.query(
-        "insert into source_records(id,source_type,content,metadata,imported_at) values($1,'supplier_message',$2,$3,now()) on conflict(id) do nothing",
-        [input.sourceRecordId, input.sourceText, { approved: true }],
-      );
+      await lockPurchaseOrders(client, [input.entityId]);
+      const reference = await client.query("select entity_id from purchase_orders where entity_id=$1", [input.entityId]);
+      if (!reference.rowCount) { await client.query("rollback"); return { status: "unknown_po" }; }
+      const rows = await client.query(`${selectEvents} where entity_id=$1 order by occurred_at,id`, [input.entityId]);
+      const events = rows.rows.map(toCanonicalEvent);
+      const existing = events.find(event => event.id === approvedEtaEventId(input));
+      if (existing) { await client.query("commit"); return { status: "already_applied", event: existing }; }
+      if (!events.length) { await client.query("rollback"); return { status: "unknown_po" }; }
+      const current = replayPurchaseOrder(events, input.entityId);
+      if (current.eta !== input.expectedEta || purchaseOrderRevision(current) !== input.expectedRevision) {
+        await client.query("rollback"); return { status: "stale", currentEta: current.eta };
+      }
+      if (current.eta === input.eta) { await client.query("rollback"); return { status: "unchanged" }; }
+      const event = approvedEtaEvent(input, current);
+      await persistSourceRecord(client, input.sourceRecordId, input.sourceText, "supplier_message", { approved: true, approvedAt: input.approvedAt });
       const key = idempotencyKey({ sourceRecordId: event.sourceRecordId, entityId: event.entityId, eventType: event.eventType, occurredAt: event.occurredAt, payload: event.payload });
       const inserted = await client.query(
         "insert into canonical_events(id,idempotency_key,entity_type,entity_id,event_type,occurred_at,ingested_at,source_record_id,payload,schema_version) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) on conflict do nothing returning id",
@@ -172,26 +197,47 @@ export class PostgresStore {
       return inserted.rowCount ? { status: "applied", event } : { status: "already_applied", event };
     } catch (error) { await client.query("rollback"); throw error; } finally { client.release(); }
   }
-  async analysisRuns() { return (await this.pool.query("select * from analysis_runs order by created_at desc limit 100")).rows; }
+  async analysisRuns() { return (await this.pool.query('select cache_key as "cacheKey", id, request, status, result, error, usage, fallback_tier as "fallbackTier", created_at as "createdAt", completed_at as "completedAt" from analysis_runs order by created_at desc limit 100')).rows; }
   async purchaseOrders() { const events = await this.allEvents(); return (await this.references()).map(({ entityId }) => replayPurchaseOrder(events.filter((event) => event.entityId === entityId), entityId)); }
   async state(id: string) { const events = (await this.allEvents()).filter((event) => event.entityId === id); return events.length ? replayPurchaseOrder(events, id) : undefined; }
   async timeline(id: string) { return (await this.allEvents()).filter((event) => event.entityId === id); }
   async exceptions() { return sortExceptions(detectExceptions(await this.allEvents(), { now: new Date().toISOString() })); }
 }
 
-function approvedEtaEvent(input: ApprovedEtaChange, previousEta: string | null): Event {
-  const eventType: "SUPPLIER_ETA_CONFIRMED" | "SUPPLIER_ETA_CHANGED" = previousEta === null ? "SUPPLIER_ETA_CONFIRMED" : "SUPPLIER_ETA_CHANGED";
+const selectEvents = 'select id,entity_type as "entityType",entity_id as "entityId",event_type as "eventType",occurred_at as "occurredAt",ingested_at as "ingestedAt",source_record_id as "sourceRecordId",payload,schema_version as "schemaVersion" from canonical_events';
+
+async function lockPurchaseOrders(client: PoolClient, entityIds: readonly string[]): Promise<void> {
+  // All event writers share these transaction locks; sorted IDs avoid batch deadlocks.
+  for (const id of [...new Set(entityIds)].sort()) {
+    await client.query("select pg_advisory_xact_lock(hashtextextended($1, 0))", [`procurebrain:po:${id}`]);
+  }
+}
+
+async function persistSourceRecord(client: PoolClient, id: string, content: string, sourceType: string, metadata: unknown): Promise<void> {
+  await client.query("insert into source_records(id,source_type,content,metadata,imported_at) values($1,$2,$3,$4,now()) on conflict(id) do nothing", [id, sourceType, content, metadata]);
+  const stored = await client.query('select content, source_type as "sourceType" from source_records where id=$1', [id]);
+  if (!stored.rows[0]) throw new Error("Source record was not persisted");
+  assertSourceIdentity(stored.rows[0], content, sourceType, id);
+}
+
+function approvedEtaEventId(input: ApprovedEtaChange): string {
+  return `approval-${createHash("sha256").update(JSON.stringify([input.approvalId, input.entityId, input.eta])).digest("hex")}`;
+}
+
+function approvedEtaEvent(input: ApprovedEtaChange, current: PurchaseOrderState): Event {
+  const eventType: "SUPPLIER_ETA_CONFIRMED" | "SUPPLIER_ETA_CHANGED" = current.eta === null ? "SUPPLIER_ETA_CONFIRMED" : "SUPPLIER_ETA_CHANGED";
   const value = {
     entityId: input.entityId,
     entityType: "PURCHASE_ORDER" as const,
     eventType,
-    occurredAt: input.occurredAt,
+    // Approval updates current state, even when an imported event has a future timestamp.
+    occurredAt: new Date(Math.max(Date.parse(input.approvedAt), current.lastOccurredAt ? Date.parse(current.lastOccurredAt) + 1 : 0)).toISOString(),
     sourceRecordId: input.sourceRecordId,
     payload: { eta: input.eta },
   };
   return {
     ...value,
-    id: canonicalEventId(value),
+    id: approvedEtaEventId(input),
     ingestedAt: new Date().toISOString(),
     schemaVersion: 1,
   };

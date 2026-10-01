@@ -38,17 +38,15 @@ separately).
 
 For the web review flow, the caller supplies the selected `entityId` when
 requesting supplier-text analysis. The API snapshots that PO's public reference
-and current ETA into the analysis run. The response includes the `cacheKey`.
+and current ETA plus event revision into the analysis run. The response includes the `cacheKey`.
 After a person reviews and optionally edits the proposed ETA, the client posts
 it to `/api/analysis/runs/:cacheKey/approve`. The API checks that the run is a
 supplier-text proposal, the extracted PO reference matches the selected order,
-the ETA is valid and different, and the PO ETA still matches the saved
-baseline. If another update changed the order in the meantime, approval returns
+the ETA is valid and different, and the PO event revision still matches the saved
+baseline. Imports and approvals use the same per-PO PostgreSQL transaction locks. If another update changed the order in the meantime, approval returns
 `409` and asks the user to analyze again. Approval stores the original pasted
 message as a source record and adds a `SUPPLIER_ETA_CHANGED` event (or
-`SUPPLIER_ETA_CONFIRMED` when no prior ETA exists). The event time currently
-uses analysis-run creation time because the form does not capture the supplier
-message's original timestamp.
+`SUPPLIER_ETA_CONFIRMED` when no prior ETA exists). The event uses approval time, ordered after the current PO history when an imported event is future-dated. The form does not capture the supplier message's original timestamp. Retrying the same approval returns its saved event; a source ID reused with different text or source type returns `409`.
 
 Only this explicit human approval path writes an event from a text proposal.
 Document analysis still returns an inspection result and has no approval

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "procurebrain": {
+      "type": "local",
+      "command": ["pnpm", "--filter", "@procurebrain/mcp", "start"],
+      "enabled": true,
+      "environment": {
+        "PROCUREBRAIN_API_URL": "http://localhost:8787"
+      }
+    }
+  },
+  "permission": {
+    "procurebrain_list_*": "allow",
+    "procurebrain_get_*": "allow",
+    "procurebrain_analyze_supplier_email": "allow",
+    "procurebrain_bind_document_to_po": "allow",
+    "procurebrain_approve_eta_change": "ask",
+    "procurebrain_import_po_csv": "ask"
+  }
+}

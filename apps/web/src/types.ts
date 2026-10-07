@@ -1,0 +1,13 @@
+export type Page = "connections" | "practice" | "agent" | "overview" | "orders" | "messages" | "reviews" | "imports" | "suppliers" | "evidence" | "history" | "progress";
+export type PO = { entityId: string; poReference?: string; supplierId: string | null; supplierName: string | null; orderedQuantity: number | null; confirmedQuantity: number | null; receivedQuantity: number; eta: string | null; status: string };
+export type Attention = { id: string; entityId: string; type: string; priority: number; details: Record<string, string | number>; eventIds: string[] };
+export type OrderEvent = { id: string; eventType: string; occurredAt: string; sourceRecordId: string; payload: Record<string, unknown> };
+export type Commitment = { poReference: string | null; eta: string | null; quantity: number | null; type: string; confidence: number; evidence: string[] };
+export type Extraction = { sourceRecordId: string; sourceText: string; commitment: Commitment | null; state: string; entityId: string | null; reason: string | null };
+export type Run = { id: string; cacheKey: string; status: string; fallbackTier?: string; usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number }; request: { analysisType: string; provider?: string; model?: string; context?: { baselineEta?: string | null; baselineQuantity?: number | null; entityId?: string } }; result?: Extraction | { commitment?: Commitment | null; ocr?: { text?: string }; reason?: string }; error?: string; createdAt: string };
+export type Source = { id: string; sourceType: string; importedAt: string; content?: string; metadata?: Record<string, unknown> };
+export type Supplier = { id: string; supplierCode: string; name: string; primaryEmail: string | null; emailDomain: string | null; phone: string | null; country: string | null; currency: string | null; status: string };
+export type SupplierMessage = { id: string; channel: string; sender: string | null; subject: string | null; text: string; sentAt: string | null; receivedAt: string; processingStatus: string; proposalRunKey: string | null };
+export type Candidate = { entityId: string; matchMethod?: string; isSelected?: boolean; poNumber?: string };
+export type ChangeProposal = { id: string; analysisRunKey: string; messageId: string | null; entityId: string; proposalType: "ETA_CHANGE" | "QUANTITY_CHANGE"; payload: { eta?: string | null; quantity?: number | null }; reviewState: string; status: string; sourceType: string; sourceRecordId: string; createdAt: string; reviewedNote?: string | null };
+export type DashboardData = { pos: PO[]; attention: Attention[]; messages: SupplierMessage[]; proposals: ChangeProposal[]; suppliers: Supplier[]; sources: Source[]; runs: Run[]; health: { ok: boolean; storage: string } };

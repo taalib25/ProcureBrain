@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "generate:dataset": "node --experimental-strip-types scripts/generate-dataset.ts",
+    "generate:realistic": "node --experimental-strip-types scripts/generate-realistic-dataset.ts",
     "evaluate:dataset": "tsx scripts/evaluate-dataset.ts",
     "build:context": "node --experimental-strip-types scripts/build-context.ts",
     "test": "vitest run",

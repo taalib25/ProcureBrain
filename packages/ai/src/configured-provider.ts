@@ -1,3 +1,4 @@
+import type { CommunicationContext } from "./communication-context";
 import type { ExtractionAdapter } from "./adapter";
 import type { PoContextRecord } from "./context";
 import { OpenAIExtractionAdapter } from "./openai";
@@ -44,12 +45,12 @@ export function createConfiguredAIProvider(env: ConfiguredAIEnv = process.env): 
     if (!env.OPENROUTER_API_KEY) {
       return { provider, model, configured: false, configurationError: "OPENROUTER_API_KEY is required when AI_PROVIDER=openrouter" };
     }
-    const adapter = new OpenRouterExtractionAdapter({ apiKey: env.OPENROUTER_API_KEY, model });
+    const adapter = new OpenRouterExtractionAdapter({ apiKey: env.OPENROUTER_API_KEY, model, fetch: (input, init) => globalThis.fetch(input, { ...init, signal: AbortSignal.timeout(90000) }) });
     let lastResponse: SafeProviderResponse | null = null;
     const extractionAdapter = {
-      extract: async (message: string, poContext: readonly PoContextRecord[] = []) => {
+      extract: async (message: string, poContext: readonly PoContextRecord[] = [], communicationContext?: CommunicationContext) => {
         lastResponse = null;
-        const result = await adapter.extractWithResponse(message, poContext);
+        const result = await adapter.extractWithResponse(message, poContext, communicationContext);
         lastResponse = { usage: safeUsage(result.usage), response: result.response };
         return result.output;
       },
@@ -79,7 +80,7 @@ export function createConfiguredAIProvider(env: ConfiguredAIEnv = process.env): 
     apiKey: env.OPENAI_API_KEY,
     model,
     fetch: async (input, init) => {
-      const response = await globalThis.fetch(input, init);
+      const response = await globalThis.fetch(input, { ...init, signal: AbortSignal.timeout(90000) });
       try {
         const body = await response.clone().json() as {
           id?: unknown; model?: unknown; choices?: Array<{ finish_reason?: unknown }>;
@@ -95,7 +96,7 @@ export function createConfiguredAIProvider(env: ConfiguredAIEnv = process.env): 
     },
   });
   const extractionAdapter = {
-    extract: (message: string, poContext: readonly PoContextRecord[] = []) => adapter.extract(message, poContext),
+    extract: (message: string, poContext: readonly PoContextRecord[] = [], communicationContext?: CommunicationContext) => adapter.extract(message, poContext, communicationContext),
     get lastResponse() { return lastResponse; },
   };
   return { provider, model, configured: true, configurationError: null, extractionAdapter };

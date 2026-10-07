@@ -1,5 +1,13 @@
-import type { DatasetGold } from "./dataset";
 import { SupplierCommitmentSchema, reviewStates, type SupplierCommitment } from "./schema";
+
+/** Minimal row shape the scorer needs; DatasetGold and realistic rows both satisfy it. */
+export interface ScorableRow {
+  readonly id: string;
+  readonly split: string;
+  readonly expected: SupplierCommitment | null;
+  readonly reviewState?: string;
+  readonly reviewRequired?: boolean;
+}
 
 export type Prediction = SupplierCommitment | null | {
   readonly commitment?: SupplierCommitment | null;
@@ -29,7 +37,7 @@ export interface SplitEvaluation {
 }
 
 /** Missing predictions are treated as unknown (null fields + needs review), never as a correct answer. */
-export function evaluateBySplit(gold: readonly DatasetGold[], predictions: Readonly<Record<string, Prediction>>): SplitEvaluation[] {
+export function evaluateBySplit(gold: readonly ScorableRow[], predictions: Readonly<Record<string, Prediction>>): SplitEvaluation[] {
   const splits = [...new Set(gold.map(row => row.split))];
   return splits.map(split => {
     const rows = gold.filter(row => row.split === split);
@@ -92,7 +100,7 @@ export function evaluateBySplit(gold: readonly DatasetGold[], predictions: Reado
   });
 }
 
-export function goldRequiresReview(row: DatasetGold): boolean {
+export function goldRequiresReview(row: ScorableRow): boolean {
   // Legacy confidence-derived labels remain supported to reproduce the frozen v1 report.
   // New benchmarks should make the expected review decision explicit.
   return row.expected === null || row.reviewState !== undefined || (row.reviewRequired ?? ((row.expected?.confidence ?? 1) < 0.7));
@@ -113,4 +121,36 @@ function readPrediction(value: Prediction | undefined): { commitment: SupplierCo
   const parsed = SupplierCommitmentSchema.safeParse(raw);
   if (!parsed.success) return invalid;
   return { commitment: parsed.data, review: state === undefined ? parsed.data.confidence < 0.7 : state !== "VALID", valid: true, failure: false };
+}
+
+/** Validated commitment from a prediction, or null when missing/invalid. Shared by evidence scoring. */
+export function predictionCommitment(value: Prediction | undefined): SupplierCommitment | null {
+  const read = readPrediction(value);
+  return read.valid ? read.commitment : null;
+}
+
+export interface EvidenceMetric { readonly correct: number; readonly total: number; readonly accuracy: number }
+
+/**
+ * Evidence-support rate: for rows with an expected commitment, the fraction
+ * where every predicted evidence string appears verbatim (case-insensitive)
+ * in the source message. Rows without a valid predicted commitment count as
+ * unsupported — a proposal with no grounding must not earn trust.
+ */
+export function evidenceSupport(
+  gold: readonly ScorableRow[],
+  messages: Readonly<Record<string, string>>,
+  predictions: Readonly<Record<string, Prediction>>,
+): EvidenceMetric {
+  let correct = 0, total = 0;
+  for (const row of gold) {
+    if (row.expected === null) continue;
+    total++;
+    const commitment = predictionCommitment(predictions[row.id]);
+    const source = (messages[row.id] ?? "").toLowerCase();
+    if (commitment && source && commitment.evidence.every((quote) => quote.trim() && source.includes(quote.trim().toLowerCase()))) {
+      correct++;
+    }
+  }
+  return { correct, total, accuracy: total ? correct / total : 0 };
 }

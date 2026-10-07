@@ -217,3 +217,60 @@ describe("OpenRouter API integration", () => {
     expect(store.allEvents()).toEqual(eventsBefore);
   });
 });
+
+describe("selected-PO baseline and email candidate matching", () => {
+  it("injects the live PO baseline into model context when a PO is selected", async () => {
+    let seenContext: readonly PoContextRecord[] = [];
+    const store = new MemoryStore();
+    const state = store.state("po-1")!;
+    const reference = store.purchaseOrderReference("po-1")!;
+    const app = createApp(store, {
+      extractionAdapter: {
+        extract: async (_message: string, poContext: readonly PoContextRecord[] = []) => {
+          seenContext = poContext;
+          return { ...output, poReference: reference.poNumber };
+        },
+      },
+    });
+    const response = await app.request("/api/analysis/supplier-text", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "PO-1001 revised delivery is 2026-11-10.", entityId: "po-1" }),
+    });
+    expect(response.status).toBe(200);
+    const result = await response.json() as { baseline: { poReference: string; eta: string | null }; poCandidates: unknown[] };
+    expect(result.baseline).toMatchObject({ poReference: reference.poNumber, eta: state.eta });
+    expect(result.poCandidates).toEqual([]);
+    const baseline = seenContext.find((record) => record.provenance.sourceFile === "operational-state");
+    expect(baseline).toMatchObject({
+      poId: reference.poNumber,
+      sourceDataset: "operational",
+      plannedDeliveryDate: state.eta,
+      supplierName: state.supplierName,
+    });
+  });
+
+  it("suggests the referenced PO for pasted emails sent without a selection", async () => {
+    const store = new MemoryStore();
+    const app = createApp(store, {
+      extractionAdapter: { extract: async () => ({ ...output, poReference: "PO-1001" }) },
+    });
+    const matched = await app.request("/api/analysis/supplier-text", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "Subject: delay\n\nHi, PO-1001 will now arrive 2026-11-10." }),
+    });
+    expect(matched.status).toBe(200);
+    const matchedResult = await matched.json() as { poCandidates: Array<{ entityId: string; poNumber: string }>; baseline: null };
+    expect(matchedResult.poCandidates).toEqual([{ entityId: "po-1", poNumber: "PO-1001" }]);
+    expect(matchedResult.baseline).toBeNull();
+
+    const unmatched = await app.request("/api/analysis/supplier-text", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "Hello, just checking in with no order mentioned." }),
+    });
+    expect(unmatched.status).toBe(200);
+    expect(((await unmatched.json()) as { poCandidates: unknown[] }).poCandidates).toEqual([]);
+  });
+});

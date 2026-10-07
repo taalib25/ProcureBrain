@@ -1,9 +1,11 @@
+import { CommunicationContextSchema, type CommunicationContext } from "./communication-context";
+import { ZodError } from "zod";
 import { EventProposalSchema, SupplierCommitmentSchema, type EventProposal, type SupplierCommitment, type ReviewState } from "./schema";
 import { PoContextArraySchema, type PoContextRecord } from "./context";
 import { runCachedAnalysis, type AnalysisCache, type AnalysisRun, type ModelRunner } from "../../analysis-cache/src";
 
 export interface ExtractionAdapter {
-  extract(message: string, poContext?: readonly PoContextRecord[]): unknown | Promise<unknown>;
+  extract(message: string, poContext?: readonly PoContextRecord[], communicationContext?: CommunicationContext): unknown | Promise<unknown>;
 }
 
 export interface ProposalContext {
@@ -23,6 +25,7 @@ const stateFor = (commitment: SupplierCommitment, context: ProposalContext): Rev
 
 export interface ProposalPoContext {
   readonly poContext?: readonly PoContextRecord[];
+  readonly communicationContext?: CommunicationContext;
 }
 
 /** Converts an adapter result into a reviewable proposal; it never creates or persists an event. */
@@ -37,11 +40,19 @@ export async function proposeSupplierCommitment(
     return EventProposalSchema.parse({ sourceRecordId: context.sourceRecordId, sourceText: message, commitment: null, state: "INVALID_SCHEMA", entityId: context.entityId ?? null, reason: "Invalid purchase-order context" });
   }
   const poContext = validated.data;
+  if (options.communicationContext?.olderThanKnownUpdate) {
+    return EventProposalSchema.parse({ sourceRecordId: context.sourceRecordId, sourceText: message, commitment: null, state: "REQUIRES_REVIEW", entityId: context.entityId ?? null, reason: "A newer supplier message is already saved for this order. Check the latest message before updating the order." });
+  }
+  if (message.includes("[Unread attachments:")) {
+    return EventProposalSchema.parse({ sourceRecordId: context.sourceRecordId, sourceText: message, commitment: null, state: "REQUIRES_REVIEW", entityId: context.entityId ?? null, reason: "This email has unread attachments. Check the files before changing the order." });
+  }
   let raw: unknown;
   try {
-    raw = await adapter.extract(message, poContext);
-  } catch {
-    return EventProposalSchema.parse({ sourceRecordId: context.sourceRecordId, sourceText: message, commitment: null, state: "REQUIRES_REVIEW", entityId: context.entityId ?? null, reason: "Extraction adapter failed" });
+    raw = await adapter.extract(message, poContext, options.communicationContext ? CommunicationContextSchema.parse(options.communicationContext) : undefined);
+  } catch (error) {
+    // Some provider adapters validate before returning. Invalid fields need clarification,
+    // while transport/provider failures remain retryable by the surrounding worker.
+    return EventProposalSchema.parse({ sourceRecordId: context.sourceRecordId, sourceText: message, commitment: null, state: error instanceof ZodError ? "INVALID_SCHEMA" : "REQUIRES_REVIEW", entityId: context.entityId ?? null, reason: error instanceof ZodError ? "Provider output failed schema validation" : "Extraction adapter failed" });
   }
   const parsed = SupplierCommitmentSchema.safeParse(raw);
   if (!parsed.success) {
@@ -74,12 +85,12 @@ export async function proposeCachedSupplierCommitment(
   const validated = PoContextArraySchema.safeParse(poOptions.poContext ?? []);
   const poContext = validated.success ? validated.data : [];
   const model: ModelRunner<EventProposal> = {
-    run: async () => ({ result: await proposeSupplierCommitment(message, context, adapter, { poContext }) }),
+    run: async () => ({ result: await proposeSupplierCommitment(message, context, adapter, { poContext, communicationContext: poOptions.communicationContext }) }),
   };
   const cached = await runCachedAnalysis({
     // Context can change the review outcome, so it is part of the cache identity.
     // PO facts also change the model input, so validated context joins the cache identity.
-    input: poContext.length > 0 ? JSON.stringify({ message, context, poContext }) : JSON.stringify({ message, context }),
+    input: poContext.length > 0 ? JSON.stringify({ message, context, poContext, communicationContext: poOptions.communicationContext }) : JSON.stringify({ message, context, communicationContext: poOptions.communicationContext }),
     mediaType: "text",
     analysisType: "supplier_commitment_extraction",
     model: options.model,

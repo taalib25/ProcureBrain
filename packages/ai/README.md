@@ -49,10 +49,13 @@ procurement-kpi).
 
 ## Pairing an email with PO context
 
-1. Match the supplier message to PO rows locally (e.g. PO reference lookup in
-   `data/datasets/processed/po-context.jsonl`).
-2. Send the matched records as `poContext` alongside `text` to
-   `POST /api/analysis/supplier-text`.
+1. Paste the supplier email first without a selection: `POST
+   /api/analysis/supplier-text` returns deterministic `poCandidates` from
+   PO-prefixed references in the message.
+2. Re-send the email with the selected `entityId`. The API injects that PO's
+   live operational baseline (reference, current ETA, quantity, supplier,
+   status) as the first `<po_context>` record; extra corpus `poContext` rows
+   are appended after it.
 3. The API validates `poContext` against `PoContextRecordSchema` (invalid
    context is rejected with `400`), forwards it as delimited `<po_context>`
    factual context while the original message stays the proposal `sourceText`,
@@ -115,6 +118,29 @@ business-type gold labels that conflict with the prompt taxonomy, so the 47.5%
 type-label match rate needs cautious interpretation. See
 [`docs/evaluations/2026-09-30-holdout.md`](../../docs/evaluations/2026-09-30-holdout.md)
 for the full analysis.
+
+## Authored-realistic evaluation set
+
+`src/realistic-dataset.ts` holds 32 hand-written supplier emails in business
+prose (subjects, signatures, forwarded threads), split into scenario-grouped
+`tuning` (17) and `final` (15) sets with their own namespace so they can never
+be confused with the synthetic development/holdout splits. Every extractable
+row carries an explicit `reviewRequired` label independent of model confidence,
+and every evidence string is a verbatim message substring (enforced by test).
+
+This set is authored-realistic, not production traffic: it measures decisions
+on business prose, which the synthetic templates do not. It does not establish
+real-world accuracy; a permissioned set of actual supplier messages is still
+needed for that claim.
+
+```bash
+pnpm --filter @procurebrain/ai generate:realistic
+pnpm --filter @procurebrain/ai evaluate:dataset -- predictions.json --dataset=realistic --split=final
+```
+
+The realistic report adds an evidence-support rate (every predicted evidence
+quote must appear verbatim in the source message; ungrounded proposals score
+zero) to the standard field, exact-record, and review-routing metrics.
 
 ## Document OCR and future context builder
 

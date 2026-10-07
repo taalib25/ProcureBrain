@@ -10,7 +10,7 @@ import { z } from "zod";
  */
 export const PoContextRecordSchema = z.object({
   poId: z.string().trim().min(1),
-  sourceDataset: z.enum(["supply-chain", "procurement-kpi"]),
+  sourceDataset: z.enum(["supply-chain", "procurement-kpi", "operational"]),
   supplierId: z.string().trim().min(1).nullable(),
   supplierName: z.string().trim().min(1).nullable(),
   materialId: z.string().trim().min(1).nullable(),
@@ -29,7 +29,7 @@ export const PoContextRecordSchema = z.object({
   supplierOnTimeRate: z.number().finite().min(0).max(1).nullable(),
   preferredSupplier: z.boolean().nullable(),
   provenance: z.object({
-    sourceDataset: z.enum(["supply-chain", "procurement-kpi"]),
+    sourceDataset: z.enum(["supply-chain", "procurement-kpi", "operational"]),
     sourceFile: z.string().trim().min(1),
   }).strict(),
 }).strict();
@@ -190,6 +190,44 @@ export function buildPoContext(inputs: ContextInputs): PoContextRecord[] {
 export function validatePoContextInput(value: unknown): PoContextRecord[] | null {
   const parsed = PoContextArraySchema.safeParse(value);
   return parsed.success ? parsed.data : null;
+}
+
+/**
+ * Builds a live operational baseline record from the currently selected PO.
+ * This is the deterministic fact the model should compare a supplier message
+ * against (current ETA / quantity / supplier), not a corpus lookup. It is
+ * always validated through PoContextRecordSchema before use.
+ */
+export function operationalPoContextRecord(input: {
+  readonly poId: string;
+  readonly supplierId?: string | null;
+  readonly supplierName?: string | null;
+  readonly quantity?: number | null;
+  readonly plannedDeliveryDate?: string | null;
+  readonly orderStatus?: string | null;
+}): PoContextRecord {
+  return PoContextRecordSchema.parse({
+    poId: input.poId,
+    sourceDataset: "operational",
+    supplierId: input.supplierId ?? null,
+    supplierName: input.supplierName ?? null,
+    materialId: null,
+    productName: null,
+    itemCategory: null,
+    orderDate: null,
+    plannedDeliveryDate: input.plannedDeliveryDate ?? null,
+    actualDeliveryDate: null,
+    quantity: input.quantity ?? null,
+    unitCost: null,
+    negotiatedPrice: null,
+    totalCost: null,
+    orderStatus: input.orderStatus ?? null,
+    defectiveUnits: null,
+    compliance: null,
+    supplierOnTimeRate: null,
+    preferredSupplier: null,
+    provenance: { sourceDataset: "operational", sourceFile: "operational-state" },
+  });
 }
 
 /**

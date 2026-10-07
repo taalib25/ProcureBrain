@@ -17,3 +17,6 @@ __pycache__/
 
 # Local evaluation datasets (may contain private supplier information)
 data/datasets/
+
+# Temporary credential files from the local Gmail authorization helper
+.env.gmail-*

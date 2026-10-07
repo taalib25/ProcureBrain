@@ -4,6 +4,7 @@ import {
   formatPoContextForPrompt,
   mapProcurementKpiRows,
   mapSupplyChainOrders,
+  operationalPoContextRecord,
   validatePoContextInput,
 } from "../src/context";
 
@@ -80,5 +81,11 @@ describe("PO context corpus", () => {
     expect(validatePoContextInput([record])?.length).toBe(1);
     expect(validatePoContextInput([{ bad: true }])).toBeNull();
     expect(formatPoContextForPrompt([record!])).toContain("<po_context>");
+  });
+  it("builds a live operational baseline for the selected PO", () => {
+    const record = operationalPoContextRecord({ poId: "PO-1001", supplierName: "Acme", quantity: 10, plannedDeliveryDate: "2026-11-10", orderStatus: "OPEN" });
+    expect(record).toMatchObject({ poId: "PO-1001", sourceDataset: "operational", plannedDeliveryDate: "2026-11-10", provenance: { sourceDataset: "operational", sourceFile: "operational-state" } });
+    expect(validatePoContextInput([record])?.length).toBe(1);
+    expect(formatPoContextForPrompt([record])).toContain("poId=PO-1001");
   });
 });

@@ -18,6 +18,29 @@ describe("PostgresStore event mapping", () => {
     expect(events.every((event) => typeof event.ingestedAt === "string")).toBe(true);
   });
 
+  it("scopes per-PO Postgres reads to the requested entity instead of scanning the event stream", async () => {
+    const queries: string[] = [];
+    const pool = {
+      query: async (sql: string) => {
+        queries.push(sql);
+        if (sql.includes("from purchase_orders")) {
+          return { rows: [{ entity_id: "po-1", po_number: "PO-1001" }] };
+        }
+        return { rows: [] };
+      },
+    } as unknown as Pool;
+    const store = new PostgresStore(pool);
+    await store.state("po-1");
+    await store.timeline("po-1");
+    await store.purchaseOrders();
+
+    expect(queries.length).toBeGreaterThan(0);
+    for (const sql of queries) {
+      if (!sql.includes("canonical_events")) continue;
+      expect(sql).toContain("entity_id");
+    }
+  });
+
   it("uses purchase-order normalization and preserves source identity through PostgreSQL inserts", async () => {
     const queries: Array<{ sql: string; values?: unknown[] }> = [];
     const client = {

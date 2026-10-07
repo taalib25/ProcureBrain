@@ -7,13 +7,16 @@
     "build": "tsc --outDir dist --noEmit false && mkdir -p dist/apps/api/migrations && cp migrations/*.sql dist/apps/api/migrations/ && cp -r document-ocr dist/apps/api/",
     "test": "vitest run",
     "evaluate:supplier-extraction": "tsx scripts/evaluate-supplier-extraction.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "evaluate:purchasing-agent": "tsx scripts/evaluate-purchasing-agent.ts",
+    "connect:gmail": "tsx scripts/connect-gmail.ts"
   },
   "dependencies": {
     "@procurebrain/domain": "workspace:*",
     "@procurebrain/ingestion": "workspace:*",
     "dotenv": "^18.0.3",
     "drizzle-orm": "^0.36.4",
+    "google-auth-library": "^11.1.0",
     "hono": "^4.6.14",
     "pg": "^8.23.0",
     "zod": "^3.24.1"

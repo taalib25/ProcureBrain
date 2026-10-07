@@ -34,14 +34,14 @@ describe("PostgreSQL runtime startup", () => {
     else process.env.DATABASE_URL = originalDatabaseUrl;
   });
 
-  it("applies the base and fencing migrations before constructing the database-mode API", async () => {
+  it("applies the base, fencing, tenancy, message, and proposal migrations before constructing the database-mode API", async () => {
     process.env.DATABASE_URL = "postgres://test/db";
     const statements: string[] = [];
     const end = vi.fn(async () => undefined);
-    const pool = { query: async (statement: string) => { statements.push(statement); }, end } as unknown as Pool;
+    const pool = { query: async (statement: string) => { statements.push(statement); return { rows: [], rowCount: 0 }; }, end } as unknown as Pool;
     const runtime = await createRuntime({ createPool: () => pool, readMigration: async (name) => `-- ${name}` });
 
-    expect(statements).toEqual(["-- 0001_runtime.sql", "-- 0002_analysis_cache_fencing.sql"]);
+    expect(statements.filter(statement => statement.startsWith("--"))).toEqual(["-- 0001_runtime.sql", "-- 0002_analysis_cache_fencing.sql", "-- 0003_organizations_suppliers.sql", "-- 0004_supplier_messages.sql", "-- 0005_change_proposals.sql", "-- 0006_agent_runtime.sql"]);
     expect(await (await runtime.app.request("/api/health")).json()).toEqual({ ok: true, storage: "postgres" });
     await runtime.close();
     expect(end).toHaveBeenCalledOnce();

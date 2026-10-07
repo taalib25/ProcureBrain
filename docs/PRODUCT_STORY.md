@@ -18,23 +18,24 @@ The useful question it should answer is: **“Which PO needs me, and what change
 
 ## What works in this prototype
 
-1. Import a purchase order or later PO event from CSV.
-2. Normalize the row into a typed operational event and retain its source record.
-3. Replay the event history into the current PO state.
-4. Derive attention items such as overdue delivery or quantity mismatch.
-5. Open a PO to inspect its timeline and source evidence.
-6. Paste supplier text, select a PO, and get a structured AI proposal beside the current ETA.
-7. Review the original message, edit the proposed date if needed, and approve it to add an ETA event to that PO's timeline.
+1. Import purchase orders and later activity from CSV; retain source records and rebuild the current order timeline.
+2. See deterministic attention items such as late delivery or quantity mismatch.
+3. Save a supplier message, match it to an order, and request a structured AI proposal for review.
+4. Approve or edit a supported date or quantity proposal. The approval appends a source-linked order event.
+5. Inspect a supplier timeline made from saved messages and order events.
+6. Use implemented connector code for read-only Gmail polling, a WhatsApp Business text webhook, or a signed normalized message receiver.
 
-The approved pasted-text path now connects to the PO timeline. It still requires a person to select the PO and approve the proposed ETA. Uploaded document analysis has no approve-and-apply step yet. There is no automatic email or messaging connection, and the saved event time currently represents approval time, ordered after existing PO events when necessary. The supplier's original send time is not collected. State these limits when presenting it.
+The Gmail connector has not been authorized against a real account. It still requires Google Cloud setup, local credentials, consent, PostgreSQL for durable checkpoints, and live validation. WhatsApp is also unconfigured; Outlook and personal WhatsApp connections are not built. See [the channel setup guide](CONNECTED_CHANNELS.md).
+
+The AI can use a small amount of earlier supplier/order history that existed before the current message. Its proposal still needs owner approval. No supplier replies are sent. The current synthetic evaluation does not show real supplier-message accuracy.
 
 ## The clearest 15-second demo
 
 **Hook:** “A supplier moved the delivery date. Would you notice before the order becomes late?”
 
 1. Show a PO with its original ETA.
-2. Paste a supplier message with the revised ETA and select that PO.
-3. Show the current date, proposed date, delay length, confidence, and original message.
+2. Open a saved supplier message (or add an example message) with the revised delivery date.
+3. Show the saved date, proposed date, delay length, and original message.
 4. Approve the proposal and show the updated PO timeline and attention item.
 
 Keep the update date in the future if the goal is to show a changed ETA without also triggering an overdue flag. If demonstrating an overdue PO, use a past ETA deliberately and say that it is overdue.
@@ -43,16 +44,16 @@ The approval action records the user's decision; the model does not change the o
 
 ## A simple presentation script
 
-> When you run a small business, purchasing is one of many things competing for your attention. A supplier can move a delivery date or change a quantity, and that update can get lost among messages and order records. ProcureBrain is an early prototype that tracks imported PO activity and can turn pasted supplier text into an ETA change for you to review and approve. The approved change is recorded with its source message. Automatic inbox connections and document approval are still future work.
+> When you run a small business, purchasing is one of many things competing for your attention. A supplier can move a delivery date or change a quantity, and that update can get lost among messages and order records. ProcureBrain is an early prototype that tracks imported PO activity and can prepare a date or quantity change from supplier evidence for you to review and approve. The approved change is recorded with its source. Gmail sync and WhatsApp Business text intake have code, but no live accounts are connected yet.
 
 ## Short CV wording
 
 **ProcureBrain — Procurement operations prototype**
 
 - Built a TypeScript application that imports purchase-order activity from CSV, replays events into current PO state, and surfaces deterministic exceptions such as overdue orders and quantity mismatches.
-- Added source-linked PO timelines and a human approval flow for ETA proposals extracted from pasted supplier messages.
+- Added source-linked PO timelines and a human approval flow for date or quantity proposals from supplier messages.
 - Evaluated extraction on a 60-example synthetic holdout: 45% exact complete-record match; documented field-level results and review-routing limitations. The benchmark is synthetic and does not establish real-world performance.
-- Project remains under active development; document approvals, automatic channel connections, and evaluation on representative real messages remain incomplete.
+- Project remains under active development; live channel configuration, authenticated deployment, and evaluation on representative real messages remain incomplete.
 
 Only use the accuracy bullet when there is room to explain that it is a small synthetic benchmark and that exact-record match includes all required fields and review decision.
 

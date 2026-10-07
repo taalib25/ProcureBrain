@@ -1,0 +1,8 @@
+po_number,supplier_name,order_date,quantity,eta,product_name,item_category,unit_cost,source_dataset,source_po_id
+PO-PRACTICE-001,Vertex Beta GmbH,2026-10-01,10,2026-11-10,Vertex Ultra Widget,Sport,42.34502281180546,supply-chain,PO000001
+PO-PRACTICE-002,Beta Delta LLC,2026-10-01,5,2026-11-20,Beta Prime Item,Home,74.80568738073421,supply-chain,PO000002
+PO-PRACTICE-003,Beta Pioneer Inc,2026-10-01,11,2026-11-15,Nano Omega Device,Food,76.08011907464055,supply-chain,PO000003
+PO-PRACTICE-004,Nova Beta Corp,2026-10-01,7,2026-11-25,Ultra Delta Device,Home,64.15784385111667,supply-chain,PO000004
+PO-PRACTICE-005,Vertex Beta GmbH,2026-10-01,16,2026-11-30,Nano Beta Gadget,Electronics,77.19545014739256,supply-chain,PO000191
+PO-PRACTICE-006,Gamma_Co,2026-10-01,171,2026-12-01,Raw Materials,Raw Materials,76.87,procurement-kpi,PO-00010
+PO-PRACTICE-007,Quantum Fusion Corp,2026-10-01,8,,Prime Delta Item,Beauty,73.19428939129425,supply-chain,PO000006

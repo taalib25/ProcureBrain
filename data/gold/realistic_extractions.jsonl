@@ -1,0 +1,32 @@
+{"id":"rea-0001","expected":{"poReference":"PO-4101","eta":"2026-11-18","quantity":null,"type":"eta_change","confidence":0.95,"evidence":["revised delivery date is 2026-11-18"]},"reviewRequired":false,"scenario":"eta-clear","split":"tuning"}
+{"id":"rea-0002","expected":{"poReference":"PO-4102","eta":"2026-12-02","quantity":null,"type":"eta_change","confidence":0.93,"evidence":["confirmed arrival on 2026-12-02"]},"reviewRequired":false,"scenario":"eta-clear","split":"tuning"}
+{"id":"rea-0003","expected":{"poReference":"PO-4103","eta":"2026-11-25","quantity":null,"type":"eta_change","confidence":0.9,"evidence":["arrive on November 25, 2026"]},"reviewRequired":false,"scenario":"eta-written-date","split":"tuning"}
+{"id":"rea-0004","expected":{"poReference":"PO-4104","eta":"2026-12-12","quantity":null,"type":"eta_change","confidence":0.9,"evidence":["new confirmed date is 12 Dec 2026"]},"reviewRequired":false,"scenario":"eta-written-date","split":"tuning"}
+{"id":"rea-0005","expected":{"poReference":"PO-4105","eta":null,"quantity":60,"type":"quantity_change","confidence":0.92,"evidence":["only ship 60 of the 100 units"]},"reviewRequired":false,"scenario":"quantity-clear","split":"tuning"}
+{"id":"rea-0006","expected":{"poReference":"PO-4106","eta":null,"quantity":25,"type":"quantity_change","confidence":0.93,"evidence":["revise PO-4106 down to 25 units"]},"reviewRequired":false,"scenario":"quantity-clear","split":"tuning"}
+{"id":"rea-0007","expected":{"poReference":"PO-4107","eta":"2026-11-20","quantity":8,"type":"new_commitment","confidence":0.93,"evidence":["eight (8) units of PO-4107 packed"]},"reviewRequired":false,"scenario":"quantity-words","split":"tuning"}
+{"id":"rea-0008","expected":{"poReference":"PO-4108","eta":"2026-12-05","quantity":null,"type":"general_update","confidence":0.9,"evidence":["still on track for 2026-12-05"]},"reviewRequired":false,"scenario":"confirm-no-change","split":"tuning"}
+{"id":"rea-0009","expected":null,"reviewRequired":true,"scenario":"multiple-po","split":"tuning"}
+{"id":"rea-0010","expected":null,"reviewRequired":true,"scenario":"no-reference","split":"tuning"}
+{"id":"rea-0011","expected":{"poReference":"PO-9999","eta":"2026-12-01","quantity":null,"type":"eta_change","confidence":0.9,"evidence":["delivery moved to 2026-12-01"]},"reviewRequired":true,"scenario":"unknown-po","split":"tuning"}
+{"id":"rea-0012","expected":{"poReference":"PO-4111","eta":"2026-11-30","quantity":null,"type":"eta_change","confidence":0.88,"evidence":["correct date for PO-4111 is 2026-11-30"]},"reviewRequired":false,"scenario":"forwarded-correction","split":"tuning"}
+{"id":"rea-0013","expected":null,"reviewRequired":true,"scenario":"conflicting-dates","split":"tuning"}
+{"id":"rea-0014","expected":{"poReference":"PO-4113","eta":null,"quantity":null,"type":"general_update","confidence":0.6,"evidence":["will ship next Friday"]},"reviewRequired":true,"scenario":"relative-date","split":"tuning"}
+{"id":"rea-0015","expected":{"poReference":"PO-4114","eta":"2026-12-15","quantity":40,"type":"new_commitment","confidence":0.95,"evidence":["PO-4114 confirmed for 2026-12-15"]},"reviewRequired":false,"scenario":"duplicate-delivery","split":"tuning"}
+{"id":"rea-0016","expected":{"poReference":"PO-4114","eta":"2026-12-15","quantity":40,"type":"new_commitment","confidence":0.95,"evidence":["PO-4114 confirmed for 2026-12-15"]},"reviewRequired":false,"scenario":"duplicate-delivery","split":"tuning"}
+{"id":"rea-0017","expected":null,"reviewRequired":true,"scenario":"ambiguous-quantity","split":"tuning"}
+{"id":"rea-0018","expected":{"poReference":"PO-4116","eta":"2026-11-05","quantity":null,"type":"eta_change","confidence":0.94,"evidence":["pulled forward to 2026-11-05"]},"reviewRequired":false,"scenario":"eta-clear","split":"final"}
+{"id":"rea-0019","expected":{"poReference":"PO-4117","eta":"2027-01-08","quantity":null,"type":"eta_change","confidence":0.93,"evidence":["push delivery to 2027-01-08"]},"reviewRequired":false,"scenario":"eta-clear","split":"final"}
+{"id":"rea-0020","expected":{"poReference":"PO-4118","eta":"2027-01-06","quantity":null,"type":"eta_change","confidence":0.9,"evidence":["delivered on January 6, 2027"]},"reviewRequired":false,"scenario":"eta-written-date","split":"final"}
+{"id":"rea-0021","expected":{"poReference":"PO-4119","eta":"2026-12-18","quantity":15,"type":"quantity_change","confidence":0.9,"evidence":["15 units ship today"]},"reviewRequired":false,"scenario":"quantity-clear","split":"final"}
+{"id":"rea-0022","expected":{"poReference":"PO-4120","eta":null,"quantity":12,"type":"quantity_change","confidence":0.92,"evidence":["reduce PO-4120 to 12 units"]},"reviewRequired":false,"scenario":"quantity-clear","split":"final"}
+{"id":"rea-0023","expected":{"poReference":"PO-4121","eta":"2026-11-28","quantity":12,"type":"new_commitment","confidence":0.93,"evidence":["Twelve (12) cartons for PO-4121"]},"reviewRequired":false,"scenario":"quantity-words","split":"final"}
+{"id":"rea-0024","expected":{"poReference":"PO-4122","eta":"2026-12-20","quantity":null,"type":"general_update","confidence":0.88,"evidence":["expecting PO-4122 on Dec 20, 2026"]},"reviewRequired":false,"scenario":"confirm-no-change","split":"final"}
+{"id":"rea-0025","expected":null,"reviewRequired":true,"scenario":"multiple-po","split":"final"}
+{"id":"rea-0026","expected":null,"reviewRequired":true,"scenario":"no-reference","split":"final"}
+{"id":"rea-0027","expected":null,"reviewRequired":true,"scenario":"confusable-reference","split":"final"}
+{"id":"rea-0028","expected":{"poReference":"PO-4126","eta":null,"quantity":18,"type":"quantity_change","confidence":0.88,"evidence":["confirmed quantity for PO-4126 is 18 units"]},"reviewRequired":false,"scenario":"forwarded-correction","split":"final"}
+{"id":"rea-0029","expected":null,"reviewRequired":true,"scenario":"conflicting-quantity","split":"final"}
+{"id":"rea-0030","expected":{"poReference":"PO-4128","eta":null,"quantity":null,"type":"general_update","confidence":0.7,"evidence":["final packing list for PO-4128"]},"reviewRequired":false,"scenario":"attachment-only","split":"final"}
+{"id":"rea-0031","expected":null,"reviewRequired":true,"scenario":"irrelevant","split":"final"}
+{"id":"rea-0032","expected":{"poReference":"PO-4129","eta":null,"quantity":null,"type":"general_update","confidence":0.85,"evidence":["is cancelled; replacement date pending"]},"reviewRequired":false,"scenario":"cancelled","split":"final"}

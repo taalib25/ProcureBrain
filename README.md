@@ -1,75 +1,78 @@
 # ProcureBrain
 
-**Status: under active development.** A small-business owner who handles purchasing needs a quick answer to a simple question: **which order changed or needs attention, and what evidence explains why?** ProcureBrain is a prototype that turns imported purchase-order activity into a timeline and an attention queue, so the owner can spot late orders and quantity mismatches.
+**Status: under active development.** ProcureBrain is a learning project for a small-business owner who tracks supplier orders. It is designed to collect supplier messages, match them with purchase orders, show a source-linked timeline, and prepare a delivery-date or quantity change for the owner to review.
 
-The current workflow starts with CSV imports. For pasted supplier text, the app can draft an ETA change, show it beside the PO's current date and source message, and record it after a person approves it. Document uploads still return analysis for inspection, and there is no inbox connection. The project is not production-ready, and AI extraction has only been measured on a small synthetic benchmark, not a representative set of real supplier messages. Treat model output as a proposal until a person reviews it.
+The Gmail connector, WhatsApp Business text receiver, signed message intake, bounded supplier history, and review dashboard are implemented in code. They are not yet verified against a real Gmail or WhatsApp account. Gmail still needs Google Cloud setup and owner consent. The project is not a finished or production-ready service. See [connected channels and the setup checklist](docs/CONNECTED_CHANNELS.md).
 
-For the plain-language problem, solution, and a short demo script, see [the product story](docs/PRODUCT_STORY.md).
+## The problem and intended workflow
 
-See [what is implemented and what to do next](docs/PROJECT_STATUS.md) for the project roadmap.
+A supplier may change an order's delivery date in an email or message. The owner then has to notice it, identify the order, and update a separate record. ProcureBrain is intended to collect that evidence and prepare the right order change, while leaving the final decision to the owner.
 
-## What it does today
-
-- Imports purchase orders, supplier ETA updates, receipts, and follow-ups from CSV.
-- Stores operational changes as immutable events and rebuilds current purchase-order state by replaying them.
-- Detects exceptions such as overdue orders and quantity mismatches, with evidence attached to each result.
-- Analyzes pasted supplier text and uploaded images or PDFs. A pasted-text ETA proposal can be edited and approved into a PO event; document analysis is still inspection-only.
-- Caches analysis runs and can persist source records, events, and cache data in PostgreSQL.
-
-CSV normalization and exception detection are deterministic and do not use model tokens. Model analysis only creates a proposal; an approved proposal becomes an operational event after a person confirms it.
-
-## Architecture
-
-```text
-CSV import → source evidence + canonical events → PO timeline and current state
-                                             ↓
-                                  exception / attention queue
-
-Pasted supplier text → AI proposal → human edits/approves → PO event → timeline/queue
-Document upload → OCR and AI analysis → inspect result (approval flow not connected yet)
+```mermaid
+flowchart LR
+  Sources[Gmail, later WhatsApp, or saved message] --> Match[Match registered supplier and order]
+  Match --> Timeline[Keep original source and order timeline]
+  Timeline --> Context[Use related history up to message time]
+  Context --> AI[Interpret the current supplier update]
+  AI --> Review[Show proposed date or quantity with evidence]
+  Review -->|Owner approves| Order[Record the order event]
+  Review -->|Needs more information| Help[Ask owner to check with supplier]
 ```
 
-The workspace is organized as a pnpm monorepo:
+The AI proposes a change; it does not update an order by itself. The owner must review and approve the change. This project has no WhatsApp replies or automatic supplier negotiation.
 
-- `apps/api` — Hono API, runtime, and document OCR worker integration.
-- `apps/web` — React/Vite review interface.
-- `packages/domain` — event contracts, purchase-order reducer, and exception logic.
-- `packages/ingestion` — CSV normalization, entity resolution, and idempotency.
-- `packages/db` — Drizzle schema and PostgreSQL repository.
-- `packages/analysis-cache` — versioned, content-keyed analysis cache.
-- `packages/ai` — validated extraction proposals, provider adapters, and local context/evaluation utilities. The API records an ETA event only after explicit human approval.
-- `packages/evals` — deterministic exception scenarios and integration coverage.
+## What is implemented
 
-## Technology
+- Purchase order and activity CSV import, order timelines, source records, and deterministic attention checks.
+- Supplier message storage with source IDs, deduplication, matching, background analysis, and proposal review.
+- Gmail read-only OAuth setup, one-minute polling, recent message history, incremental sync checkpoints, and pause/resume controls. A real account has not been connected or validated.
+- A WhatsApp Business webhook for signed **text messages**. It is not connected to a WhatsApp account; personal chat, voice, image, and document intake are not supported.
+- A signed inbound message format that another integration can use. Ready-made Outlook and other mailbox connectors are not implemented.
+- Source-linked supplier history and bounded context for AI analysis. The context uses up to eight relevant earlier messages and twelve earlier order events, before the current message time. It does not train a supplier-specific model or measure supplier reliability.
+- Review safeguards for unclear changes, unread attachments, and an older message that arrives after a newer update. The owner remains responsible for checking evidence.
+- An under-development dashboard with Home, Orders, Messages, Check changes, Email alerts, Suppliers, and a Connections page.
+- Synthetic AI extraction data and authored purchasing workflow scenarios. The workflow scenarios use supplied extraction results; they do not measure a live model's accuracy.
 
-TypeScript, React, Vite, Hono, PostgreSQL, Drizzle ORM, Vitest, PaddleOCR, and OpenRouter. OpenAI-compatible extraction is also available as an optional provider.
+## Project state and limitations
+
+- Gmail and WhatsApp have **not** been connected to real accounts. No live message retrieval was validated in this iteration.
+- Gmail's requested `gmail.readonly` scope is restricted by Google. A public Gmail integration may need Google's verification and security assessment. Check current requirements before offering it to other users.
+- No real supplier data or representative, permissioned supplier-email set has been evaluated. The recorded synthetic extraction benchmark is not a real-world accuracy claim. See [evaluation notes](packages/ai/README.md#pairing-an-email-with-po-context).
+- Historical Gmail messages are saved as history; they are not automatically sent to AI. New messages go to the configured AI provider for analysis. The app stores only messages that match a registered supplier, but the OAuth permission itself covers Gmail message reading.
+- Gmail text/plain is preferred. HTML-only message bodies are kept as raw text, and attachment contents are not read.
+- A persistent PostgreSQL database is needed for messages and sync checkpoints to survive restarts. In-memory demo data is lost when the API restarts.
+- Owner authentication, complete organization isolation, retention/deletion controls, monitoring, real email delivery validation, and production deployment remain unfinished.
 
 ## Run locally
 
-Requirements: Node.js, pnpm 9, and (optionally) PostgreSQL. Install dependencies and create a local environment file:
+Requirements: Node.js, pnpm 9, and optionally PostgreSQL for persistent storage.
 
 ```bash
 pnpm install
 cp .env.example .env
 ```
 
-Add an OpenRouter API key to `.env` to enable hosted model extraction. Start the API:
+Configure an AI provider in the local `.env` if you want to analyze messages. Start the API and web app in separate terminals:
 
 ```bash
 pnpm --filter @procurebrain/api dev
+pnpm --filter @procurebrain/web dev --host 0.0.0.0
 ```
 
-In another terminal, start the web app:
+Open <http://localhost:5173>. Without `DATABASE_URL`, the app uses temporary in-memory records. To set up Gmail later, follow the [connected-channel guide](docs/CONNECTED_CHANNELS.md); never place credentials in Git or chat.
 
-```bash
-pnpm --filter @procurebrain/web dev
-```
+## Learn the project
 
-Open <http://localhost:5173>. The web development server forwards `/api` requests to the API on port `8787`.
+- [Problem statement and demo story](docs/PRODUCT_STORY.md)
+- [System architecture and connector setup](docs/CONNECTED_CHANNELS.md)
+- [Project status and next steps](docs/PROJECT_STATUS.md)
+- [Purchasing agent walkthrough](docs/AGENT_HARNESS.md)
+- [Dataset, labels, and accuracy limits](packages/ai/README.md)
+- [Purchasing practice cases](docs/PURCHASING_PRACTICE_GUIDE.md)
+- [Recorded workflow evaluation](docs/evaluations/2026-10-06-purchasing-agent.md)
+- [Dashboard guide](docs/DASHBOARD_UI.md)
 
-For durable storage, set `DATABASE_URL` in the API environment. Without it, the API uses process-local memory, which is intended for local development only. See [apps/api/README.md](apps/api/README.md) for PostgreSQL and OCR setup details.
-
-## Development commands
+## Development checks
 
 ```bash
 pnpm typecheck
@@ -77,46 +80,19 @@ pnpm test
 pnpm build
 ```
 
-Provider tests use mocked responses and do not require API credentials.
+The commands above are available for contributors. Passing workflow checks with fixture outputs does not establish AI accuracy or a successful live connector. Real-world evaluation needs representative, permissioned, independently labeled supplier messages.
 
-To run the synthetic supplier-message benchmark against the configured live
-provider during development, use `pnpm --filter @procurebrain/api evaluate:supplier-extraction -- --split=development`.
-This sends one provider request per example in the selected split and may incur
-API charges. Predictions and a metadata report are saved under `.tmp/`.
+## CV wording while the project is in progress
 
-To inspect the synthetic messages and labels without model calls, run
-`pnpm --filter @procurebrain/ai audit:dataset` and open
-`.tmp/evaluations/dataset-review.html`. The examined historical holdout should
-not be reused to tune the prompt or establish a new final accuracy result.
+**ProcureBrain — Supplier Update Review Agent (Under Development)**
 
-## Current validation and known gaps
+- Building a purchasing workflow that links supplier messages to purchase orders and prepares source-backed delivery-date or quantity changes for owner approval.
+- Implemented Gmail read-only synchronization, supplier-history context, message deduplication, and review safeguards; awaiting Google OAuth setup and live-account validation.
+- Designed an extensible signed-message intake and WhatsApp Business text webhook; external channel setup and production security remain in progress.
+- Evaluated deterministic workflow scenarios with fixture extraction outputs; this result does not measure model accuracy.
 
-- The October 1 review passed 102 tests, including approval checks against real PostgreSQL, plus type checking, the production build, and browser import/refresh checks. See the [review record](docs/BEST_PRACTICES_REVIEW.md) for scope and remaining gaps.
-- A September 30, 2026 OpenRouter holdout run exactly matched 27/60 complete synthetic examples (45%). Field matches were 92.5% for PO reference, 97.5% for ETA, 92.5% for quantity, and 47.5% for business type. It sent only 13/30 gold review-required cases to review. These are synthetic-label match rates; two scenario families have type labels that conflict with the prompt taxonomy. See the [full evaluation notes](docs/evaluations/2026-09-30-holdout.md).
-- A three-document OCR smoke check reported a mean reference-word recall proxy of 0.9737. This is a small text-overlap check, not a general OCR score or supplier-extraction accuracy measurement.
-- The OCR-to-PO context matching and as-of-message-time context flow is documented as future work.
-
-The project is being built iteratively. Gold-label review, evaluation on representative supplier messages, safer review routing, and the remaining OCR context flow are areas for continued development.
-
-## Local datasets and credentials
-
-Local archives, extracted data, and processed PO context are kept under `data/datasets/` and excluded from Git. Dataset reuse may require attribution or license review; see [packages/ai/README.md](packages/ai/README.md). Do not add private company documents or supplier data to this public repository.
-
-Copy `.env.example` for local configuration. Never commit `.env`, API keys, database credentials, or other secrets.
-
-## Project documents
-
-- [Product story and demo script](docs/PRODUCT_STORY.md)
-- [Dataset and code walkthrough](docs/PROJECT_WALKTHROUGH.md)
-- [First supplier extraction evaluation](docs/evaluations/2026-09-30-holdout.md)
-- [Review against claude.dev best practices](docs/BEST_PRACTICES_REVIEW.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Deep API-first development plan](docs/DEVELOPMENT_PLAN.md)
-- [Event contract](docs/EVENT_CONTRACT.md)
-- [Design decisions](docs/DECISIONS.md)
-- [AI extraction and dataset notes](packages/ai/README.md)
-- [API setup](apps/api/README.md)
+Use the last two bullets only if you can explain the current limitations in an interview. Do not describe Gmail as connected or present the workflow-case pass rate as AI accuracy.
 
 ## License
 
-No license has been added yet. Until a license is chosen, all rights are reserved by the author.
+No license has been added. Until the author chooses one, all rights are reserved.

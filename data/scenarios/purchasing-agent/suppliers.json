@@ -1,0 +1,38 @@
+[
+  {
+    "supplierCode": "PRACTICE-SUP00059",
+    "name": "Vertex Beta GmbH",
+    "primaryEmail": "updates@supplier-sup00059.example.test",
+    "emailDomain": "supplier-sup00059.example.test"
+  },
+  {
+    "supplierCode": "PRACTICE-SUP00085",
+    "name": "Beta Delta LLC",
+    "primaryEmail": "updates@supplier-sup00085.example.test",
+    "emailDomain": "supplier-sup00085.example.test"
+  },
+  {
+    "supplierCode": "PRACTICE-SUP00097",
+    "name": "Beta Pioneer Inc",
+    "primaryEmail": "updates@supplier-sup00097.example.test",
+    "emailDomain": "supplier-sup00097.example.test"
+  },
+  {
+    "supplierCode": "PRACTICE-SUP00023",
+    "name": "Nova Beta Corp",
+    "primaryEmail": "updates@supplier-sup00023.example.test",
+    "emailDomain": "supplier-sup00023.example.test"
+  },
+  {
+    "supplierCode": "PRACTICE-KPI-GAMMA",
+    "name": "Gamma_Co",
+    "primaryEmail": "updates@supplier-gamma.example.test",
+    "emailDomain": "supplier-gamma.example.test"
+  },
+  {
+    "supplierCode": "PRACTICE-SUP00024",
+    "name": "Quantum Fusion Corp",
+    "primaryEmail": "updates@supplier-sup00024.example.test",
+    "emailDomain": "supplier-sup00024.example.test"
+  }
+]

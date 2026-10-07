@@ -1,82 +1,38 @@
-# ProcureBrain: project status and next steps
+# ProcureBrain: current status
 
-**Audience:** a small-business owner who handles purchasing themselves.  
-**Status:** early prototype; pasted-text ETA changes can now be reviewed and approved, while automatic channel connections and target-user validation remain incomplete.
+**Status: under active development.** This is a learning prototype for a small-business owner who handles purchasing. It aims to catch supplier changes, connect them to the right order, and prepare a clear change for the owner to review.
 
-## Map: built so far and what comes next
+## What is built
 
-```mermaid
-flowchart LR
-  subgraph built[Built so far]
-    direction TB
-    CSV[Import PO and supplier-update CSVs] --> Events[Store source rows and canonical events]
-    Events --> State[Replay events into current PO state and timeline]
-    State --> Queue[Flag ETA changes, overdue orders, and quantity issues]
-    Queue --> Evidence[Open a PO and inspect source evidence]
-    Text[Paste supplier text] --> Proposal[AI returns a reviewable proposal]
-    Proposal --> Approval[Person edits or approves ETA]
-    Approval --> Applied[Approved ETA becomes a PO event]
-    Document[Upload a document] --> Ocr[OCR and analysis result for inspection]
-    Eval[Run extraction benchmark on synthetic messages]
-  end
+- Purchase order and activity CSV import, source records, event timelines, and deterministic checks for late orders and quantity issues.
+- Supplier messages can be saved, matched to an order, analyzed in a background worker, and turned into a reviewable date or quantity proposal.
+- The owner can approve, edit, or decline a proposed change. Approval appends an order event with source evidence.
+- Gmail read-only OAuth setup, minute-based polling, a two-week initial message history, incremental checkpoints, pause/resume, deduplication, and history recovery are implemented. No real Gmail account has been connected or live-validated.
+- WhatsApp Business webhook handling is implemented for signed text messages. Account configuration, supplier tests, and live validation remain undone. It does not read personal chats, voice notes, images, or attachments, and it does not send WhatsApp alerts.
+- A signed message receiver can accept a normalized message from a separate integration. It is not a ready-made Outlook, Slack, or email adapter.
+- Supplier pages show saved messages and order events as a source-linked timeline. AI analysis may use bounded earlier history from the same supplier/order, limited to what was known at the message time.
+- A dashboard provides Home, Orders, Messages, Check changes, Email alerts, Suppliers, and Connections screens.
+- A synthetic extraction dataset and 34 authored workflow scenarios support learning and evaluation. Fixture-driven workflow results do not measure AI understanding or real supplier accuracy.
 
-  subgraph next[Next steps]
-    direction TB
-    Validate[1. Show the workflow to 3 small-business owners who do purchasing]
-    Demo[2. Refine the demo around the problem they recognize]
-    RealData[3. Evaluate on representative, permissioned supplier messages]
-    Channels[4. Add document approval or one automatic channel, based on owner feedback]
-    Ready[5. Harden privacy, reliability, and deployment before real use]
-    Validate --> Demo --> RealData --> Channels --> Ready
-  end
+## What a user can do now
 
-  Proposal -. Requires human approval .-> Approval
-```
+With demo or configured API data, a user can inspect orders and evidence, save a supplier message, review an AI proposal, and approve an order change. The dashboard includes a Connections page, but Gmail will say **Setup needed** until an owner completes Google Cloud and OAuth setup. A configured connection still needs live validation before it is relied on.
 
-## What is implemented
+## What remains
 
-- CSV import for purchase orders, supplier ETA updates, receipts, and follow-ups.
-- Event replay into a current PO view and timeline.
-- Deterministic attention rules for ETA changes, overdue POs, quantity shortfalls, receipt shortfalls, and overdue follow-ups.
-- Source records retained and linked from timeline events.
-- Pasted supplier-text analysis that proposes an ETA change for a selected PO; the owner can edit and approve it, recording a source-linked event.
-- Document upload OCR and analysis that returns a result for inspection; applying a document-derived proposal is not connected yet.
-- A first extraction benchmark on a 60-message **synthetic** holdout. It recorded 45% exact complete-record match and found weak review routing. This does not measure performance on real supplier traffic; see the [evaluation report](evaluations/2026-09-30-holdout.md).
-- A product story and simple demo flow aimed at the small-business owner who handles purchasing.
+1. Register and verify supplier email and phone details and purchase-order baselines.
+2. Create a Google Cloud project, enable Gmail API, configure an OAuth consent screen and desktop client, add test user access if needed, and authorize the local setup command. Credentials must stay in local `.env`.
+3. Use PostgreSQL and validate the new connector-state migration, polling, restart recovery, duplicate messages, pause/resume, and OAuth revocation.
+4. Review privacy and data handling. New supplier messages and bounded context go to the configured AI provider. Gmail requests a restricted read-only scope.
+5. Evaluate proposal correctness and safe review routing with representative, permissioned supplier messages. Existing synthetic scores are not real-world accuracy.
+6. Add authenticated owner access and complete organization boundaries before exposing business records publicly.
+7. Configure and verify owner email alerts. Add WhatsApp Business setup only if supplier feedback supports it. Add ready-made Outlook or other adapters only when needed.
+8. Decide how long message evidence is kept, how owners delete it, and how backup and monitoring will work.
 
-## What is not complete
+Full design, message flow, and an ordered Gmail checklist are in [Connected supplier messages](CONNECTED_CHANNELS.md). The step-by-step agent flow is in [Agent harness](AGENT_HARNESS.md).
 
-- The target problem is still a hypothesis. There is no recorded feedback from small-business owners confirming how often this problem occurs or what outcome they would value most.
-- Automatic email or messaging capture is not implemented; supplier text must be pasted and the PO selected by a person.
-- Uploaded document results cannot yet be edited and approved into a PO event.
-- Approval records approval time, ordered after existing PO events when necessary. The interface does not yet capture the original supplier-message timestamp.
-- The benchmark is synthetic, small, and has known label inconsistencies. Real-world extraction and review safety are unknown.
-- This is not a production-ready service. Validate privacy, access control, deployment, and operational recovery before handling live business or supplier records.
+## Validation done and limits
 
-## Recommended order
+The workspace type check and web production build passed during this implementation. Browser inspection covered the Connections page at desktop and 320-pixel width. No Gmail account, WhatsApp account, live AI request, outgoing email, or production database recovery was exercised in this iteration. No new AI-accuracy result is claimed.
 
-### 1. Validate the pain before expanding the feature set
-
-Show the short demo to three small-business owners who personally place or track supplier orders. Ask them to describe the last time a supplier changed a date or quantity, how they found out, and what they did next. Record their wording and whether the attention queue would have changed their next action. Do not ask whether they “like the app”; ask about their recent behavior.
-
-**Decision:** if they recognize the problem, keep this as the first use case. If their recurring pain is different, revise the story before expanding the capture methods.
-
-### 2. Make one demo path dependable
-
-Demonstrate: import a PO with its original ETA → paste a supplier message → review the new date, delay, and source → approve → see the new ETA in the PO timeline. The approval path checks the current ETA and the complete PO event revision. The October 1 review added regression coverage for stale drafts, concurrent approvals, immutable evidence, malformed requests, and impossible dates. See [the review record](BEST_PRACTICES_REVIEW.md).
-
-### 3. Evaluate with better labels and representative data
-
-Review the current synthetic label taxonomy, keep the examined holdout untouched, and collect a permissioned, redacted set of representative supplier messages with reviewed labels. Measure field extraction and review routing separately before making accuracy claims.
-
-### 4. Choose the next capture method from owner feedback
-
-Pasted text can now be approved into an ETA event. Ask owners whether this works for them, or whether document approval or an automatic connection to one channel matters more. Build the path they actually use.
-
-### 5. Prepare for actual business use
-
-Prioritize only after the workflow and data handling are clear: user access boundaries, backups and recovery, monitoring, deployment, and privacy/data-retention decisions.
-
-## Immediate next action
-
-Prepare a short demo and use it in three conversations with small-business owners who handle purchasing. Learn whether missed supplier changes are a frequent problem for them and whether they would use the paste-and-approve flow.
+The October 6 workflow pack reports 34/34 offline purchasing cases with fixture extraction outputs. This confirms expected workflow handling for those supplied outputs; it does not test whether an AI model extracts the correct changes. The separate synthetic extraction benchmark has known label limitations; see the [dataset and evaluation notes](../packages/ai/README.md).

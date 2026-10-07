@@ -1,0 +1,226 @@
+{
+  "generatedAt": "2026-10-06T10:52:08.146Z",
+  "mode": "offline-gold-adapter",
+  "packVersion": "purchasing-practice-v1",
+  "packSha256": "d185679e5b95ceb7704fec25d4379032c42652b19819716f47e3fd04b86bd198",
+  "codeHashes": {
+    "apps/api/src/app.ts": "4444fd6a4a6c70b65ac2befbf6b18f195c54b4a9c32d3b8a0edf2d4877ca07ab",
+    "apps/api/src/store.ts": "63bfb308c67fb0bcdd2b34becd59d0b601f0452e665d697019a57751f536065b",
+    "apps/api/src/agent/runtime.ts": "71961f51ae9d1d49830dd579376ca90bf568ab1ab1185434ce4e42aababc7045",
+    "apps/api/src/agent/repository.ts": "51ddee8528998e99a9722b49e202bf7d79a9469b5ba0c7c425091594ab8693b6",
+    "apps/api/src/evaluation/purchasing.ts": "9b4c3b493a695efaf85fccfd45c7d90c3284ff6e06b6d92006a2d44473995499",
+    "packages/ai/src/adapter.ts": "3526bf80db67f45315f7bc8a54fa490657eba057bc26650d62748af8895666b1"
+  },
+  "cases": 34,
+  "passed": 34,
+  "failed": 0,
+  "limitations": [
+    "Authored practice scenarios, not real supplier traffic or an unseen accuracy benchmark.",
+    "Future dates, email addresses and messages are authored. Supplier/product/quantity facts reference local dataset records.",
+    "Historical actual-delivery dates are excluded from application baselines and expected model inputs.",
+    "The existing synthetic holdout and realistic final split are unchanged.",
+    "Offline mode supplies expected model outputs: it checks orchestration, not whether a real model understands the messages."
+  ],
+  "groups": {
+    "Everyday purchasing": {
+      "passed": 9,
+      "cases": 9
+    },
+    "Order matching": {
+      "passed": 6,
+      "cases": 6
+    },
+    "Unclear commitments": {
+      "passed": 11,
+      "cases": 11
+    },
+    "Meaning and noise": {
+      "passed": 4,
+      "cases": 4
+    },
+    "Provider boundaries": {
+      "passed": 4,
+      "cases": 4
+    }
+  },
+  "caseResults": [
+    {
+      "id": "PC-01",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-02",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-03",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-04",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-05",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-06",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-07",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-08",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-09",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-10",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-11",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-12",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-13",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-14",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-15",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-16",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-17",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-18",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-19",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-20",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-21",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-22",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-23",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-24",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-25",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-26",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-27",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-28",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-29",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-30",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-31",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-32",
+      "passed": true,
+      "checks": 6
+    },
+    {
+      "id": "PC-33",
+      "passed": true,
+      "checks": 11
+    },
+    {
+      "id": "PC-34",
+      "passed": true,
+      "checks": 6
+    }
+  ],
+  "regressions": {
+    "newPurchasingAgentTestsPassed": 59,
+    "apiTestsPassed": 110,
+    "workspaceTestsPassed": 193,
+    "postgresTestsSkipped": 7
+  },
+  "liveModelCalls": 0,
+  "realEmailsSent": 0
+}
